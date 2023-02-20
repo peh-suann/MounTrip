@@ -2,10 +2,9 @@
   "name": "node",
   "version": "1.0.0",
   "main": "index.js",
-  
   "scripts": {
     "dev": "nodemon index.js dev",
-    "start": "node index.js production",
+    "start": "PORT=3000 node index.js production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -27,5 +26,14 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.0.1",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^2.8.4"
   }
 }
