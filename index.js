@@ -38,11 +38,12 @@ app.get('/', (req, res) => {
   res.send('<h1>MounTrip首頁</h1>')
 })
 
+app.use('/member', require('./routes/member-data'))
 //測試資料庫連線，抓會員資料
-app.get('/member', async (req, res) => {
-  const [rows] = await db.query('SELECT * FROM `member` ORDER BY sid ASC')
-  res.json(rows)
-})
+// app.get('/member', async (req, res) => {
+//   const [rows] = await db.query('SELECT * FROM `member` ORDER BY sid ASC')
+//   res.json(rows)
+// })
 
 // app.use('/member-data',require("./routes/member-data"))
 
