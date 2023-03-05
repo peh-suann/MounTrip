@@ -1,3 +1,4 @@
+// 通訊埠設定 .env
 if (process.argv[2] && process.argv[2] === 'production') {
   require('dotenv').config({
     path: './production.env',
