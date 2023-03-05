@@ -39,6 +39,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/member', require('./routes/member-data'))
+
 //測試資料庫連線，抓會員資料
 // app.get('/member', async (req, res) => {
 //   const [rows] = await db.query('SELECT * FROM `member` ORDER BY sid ASC')
@@ -46,6 +47,10 @@ app.use('/member', require('./routes/member-data'))
 // })
 
 // app.use('/member-data',require("./routes/member-data"))
+
+app.use('/trails', require('./routes/trails-data'))
+
+app.use('/batch', require('./routes/batch-data'))
 
 //404頁面
 app.use((req, res) => {
