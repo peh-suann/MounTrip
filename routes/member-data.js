@@ -6,16 +6,7 @@ const router = express.Router()
 router.use((req, res, next) => {
   next()
 })
-//頂層的中介處理 Top-level Middleware
-//cors 通行證 寫在後端
-// const corsOptions ={
-//     Credential: true,
-//   origin: function (origin, cb) {
-//     console.log({ origin });
-//     cb(null, true);
-//   },
-// }
-// app.use(cors(corsOptions))
+
 
 const getListData = async (req, res) => {
   let redirect = ''

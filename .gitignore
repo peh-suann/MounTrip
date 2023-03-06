@@ -8,6 +8,8 @@ public/uploads
 
 .vscode
 .DS_Store
+.TODO
+.FIXME
 
 # Node artifact files
 node_modules/

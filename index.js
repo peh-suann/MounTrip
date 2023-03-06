@@ -13,13 +13,15 @@ const MysqlStore = require('express-mysql-session')(session)
 const Jimp = require('Jimp')
 const moment = require('moment-timezone')
 const cors = require('cors')
-const bcrypt = require('bcryptjs')
-
+const bcryptjs = require('bcryptjs')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const router = express.Router()
 const app = express()
 
 //DB連接
 const db = require('./modules/db_connection')
-const { application } = require('express')
+const { application, json } = require('express')
 const sessionStore = new MysqlStore({}, db) //一定要給的連線設定
 
 //頂層的中介處理 Top-level Middleware
@@ -33,6 +35,12 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 
+//傳入資料解析為json格式
+app.use(express.json())
+
+router.use((req, res, next) => {
+  next()
+})
 //首頁
 app.get('/', (req, res) => {
   res.send('<h1>MounTrip首頁</h1>')
@@ -46,6 +54,15 @@ app.use('/member', require('./routes/member-data'))
 // })
 
 // app.use('/member-data',require("./routes/member-data"))
+
+//生成batch假資料用的頁面
+app.use('/data', require('./routes/get-random-data'))
+
+//login的路由
+app.use('/login', require('./routes/login'))
+
+//測試新的路由
+// app.use('/test', require('./routes/test'))
 
 //404頁面
 app.use((req, res) => {
