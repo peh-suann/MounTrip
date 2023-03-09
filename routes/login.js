@@ -15,7 +15,7 @@ const users = [
     gender: 'male',
     birthday: '1992-03-09T16:00:00.000Z',
     account: 'y6683',
-    password: '$2y$10$NnU7YonvoPJhNvztWRkrVep0nMmKC6J0sM4svzOSr2PSpXuFKUmqi',
+    password: '0000',
     regist_date: '2023-02-07T16:00:00.000Z',
     mobile: '0918109551',
     address: '臺北市',
