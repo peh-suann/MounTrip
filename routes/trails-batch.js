@@ -20,11 +20,11 @@ const getListData = async (req, res) => {
   //   WHERE trails.sid='3'
   //   `
   const sql = `
-   SELECT * FROM trails 
+   SELECT trails.*, batch.* 
+ 
+   FROM trails 
    JOIN batch
     ON trails.sid=batch.trail_sid
-    JOIN difficulty_list
-    ON trails.difficulty_list_sid=difficulty_list.sid
     WHERE trails.sid='3'
     `
 

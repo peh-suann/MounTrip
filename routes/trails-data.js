@@ -9,12 +9,19 @@ router.use((req, res, next) => {
 const getListData = async (req, res) => {
   let rows = []
 
-  // const sql = `SELECT * FROM trails WHERE sid=''  `
+  // const sql =`
+  // SELECT * , difficulty_list.difficulty_describ, difficulty_list.difficulty_short FROM trails
+  // JOIN difficulty_list
+  // ON trails.difficulty_list_sid=difficulty_list.sid
+  // WHERE trails.sid='3'
+  // `
+
   const sql = `
-  SELECT * FROM trails 
+  SELECT trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time, trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid, trails.coupon_status, trails.price, trails.trails_display, trails.trail_length, trails.trail_height, trails.trail_gpx , difficulty_list.difficulty_describ, difficulty_list.difficulty_short FROM trails
   JOIN difficulty_list
   ON trails.difficulty_list_sid=difficulty_list.sid
-  WHERE trails.sid='3'`
+  WHERE trails.sid='3'
+  `
 
   ;[rows] = await db.query(sql)
 
