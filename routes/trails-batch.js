@@ -10,11 +10,23 @@ const getListData = async (req, res) => {
   let rows = []
 
   // const sql = `SELECT * FROM trails WHERE sid=''  `
+
+  // const sql = `
+  //  SELECT * FROM trails
+  //  JOIN batch
+  //   ON trails.sid=batch.trail_sid
+  //   JOIN difficulty_list
+  //   ON trails.difficulty_list_sid=difficulty_list.sid
+  //   WHERE trails.sid='3'
+  //   `
   const sql = `
-  SELECT * FROM trails 
-  JOIN difficulty_list
-  ON trails.difficulty_list_sid=difficulty_list.sid
-  WHERE trails.sid='3'`
+   SELECT * FROM trails 
+   JOIN batch
+    ON trails.sid=batch.trail_sid
+    JOIN difficulty_list
+    ON trails.difficulty_list_sid=difficulty_list.sid
+    WHERE trails.sid='3'
+    `
 
   ;[rows] = await db.query(sql)
 

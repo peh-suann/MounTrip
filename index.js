@@ -53,6 +53,8 @@ app.use('/trails', require('./routes/trails-data'))
 
 app.use('/batch', require('./routes/batch-data'))
 
+app.use('/trails-batch', require('./routes/trails-batch'))
+
 //404頁面
 app.use((req, res) => {
   res.status(404).send(`
