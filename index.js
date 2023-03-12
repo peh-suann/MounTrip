@@ -106,7 +106,7 @@ app.post('/login', async (req, res) => {
     output.code = 200;
     output.error = '';
 
-    // console.log(req.session)
+
     req.session.member = {
       sid: rows[0].sid,
       account: rows[0].account,
