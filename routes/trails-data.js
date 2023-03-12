@@ -7,28 +7,92 @@ router.use((req, res, next) => {
 })
 
 const getListData = async (req, res) => {
+  let redirect = ''
+  const perPage = 1
+  let page = +req.query.page || 1
+
+  let queryObj = {}
+  let sqlWhere = ' WHERE 1 ' // 條件式的開頭
   let rows = []
 
-  // const sql =`
-  // SELECT * , difficulty_list.difficulty_describ, difficulty_list.difficulty_short FROM trails
+  page = parseInt(page)
+
+  if (page < 1) {
+    redirect = req.baseUrl // 設定要轉向的 URL
+  }
+  // 算總筆數
+  const [[{ totalRows }]] = await db.query(
+    `SELECT COUNT(1) totalRows FROM batch ${sqlWhere} `
+  )
+  const totalPages = Math.ceil(totalRows / perPage) // 總頁數
+
+  if (totalRows > 0) {
+    if (page > totalPages) {
+      redirect = req.baseUrl + `?page=` + totalPages
+    }
+
+    const sql = `
+    SELECT 
+  
+    trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time, 
+    trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid, 
+    trails.coupon_status, trails.price, trails.trails_display, 
+    trails.trail_length, trails.trail_height, trails.trail_gpx , 
+  
+    difficulty_list.difficulty_describ, difficulty_list.difficulty_short,
+  
+    batch.sid,batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min, 
+    batch.batch_max, batch.batch_sold, batch.batch_switch, batch.season_coupon
+  
+    FROM trails 
+  
+    JOIN difficulty_list
+    ON trails.difficulty_list_sid=difficulty_list.sid
+    
+    JOIN batch 
+    ON trails.sid=batch.trail_sid
+
+    ORDER BY trails.sid 
+    LIMIT ${(page - 1) * perPage}, ${perPage}
+    `
+
+    // return res.send(sql); // SQL 除錯方式之一
+    ;[rows] = await db.query(sql)
+  }
+
+  // const sql = `
+  // SELECT
+
+  // trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time,
+  // trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid,
+  // trails.coupon_status, trails.price, trails.trails_display,
+  // trails.trail_length, trails.trail_height, trails.trail_gpx ,
+
+  // difficulty_list.difficulty_describ, difficulty_list.difficulty_short,
+
+  // batch.sid,batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min,
+  // batch.batch_max, batch.batch_sold, batch.batch_switch, batch.season_coupon
+
+  // FROM trails
+
   // JOIN difficulty_list
   // ON trails.difficulty_list_sid=difficulty_list.sid
-  // WHERE trails.sid='3'
+
+  // JOIN batch
+  // ON trails.sid=batch.trail_sid
+
+  // WHERE batch.sid='160'
   // `
 
-  const sql = `
-  SELECT trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time, trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid, trails.coupon_status, trails.price, trails.trails_display, trails.trail_length, trails.trail_height, trails.trail_gpx , difficulty_list.difficulty_describ, difficulty_list.difficulty_short FROM trails
-  JOIN difficulty_list
-  ON trails.difficulty_list_sid=difficulty_list.sid
-  WHERE trails.sid='3'
-  `
-
-  ;[rows] = await db.query(sql)
-
-  // return res.send(sql); //SQL 除錯方式
+  // ;[rows] = await db.query(sql)
 
   return {
+    totalRows,
+    totalPages,
+    perPage,
+    page,
     rows,
+    redirect,
   }
 }
 
