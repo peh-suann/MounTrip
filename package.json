@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js dev",
-    "start": "PORT=3000 node index.js production",
+    "start": "PORT=3001 node index.js production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

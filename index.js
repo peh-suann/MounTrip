@@ -45,7 +45,7 @@ router.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.send('<h1>MounTrip首頁</h1>')
 })
-
+//會員中心用的所有資料
 app.use('/member', require('./routes/member-data'))
 //測試資料庫連線，抓會員資料
 // app.get('/member', async (req, res) => {
@@ -57,6 +57,7 @@ app.use('/member', require('./routes/member-data'))
 
 //生成batch假資料用的頁面
 app.use('/data', require('./routes/get-random-data'))
+
 
 //login的路由
 app.use('/login', require('./routes/login'))
