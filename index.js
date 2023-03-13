@@ -13,8 +13,7 @@ const MysqlStore = require('express-mysql-session')(session)
 const Jimp = require('Jimp')
 const moment = require('moment-timezone')
 const cors = require('cors')
-const bcryptjs = require('bcryptjs')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const router = express.Router()
 const app = express()
@@ -33,6 +32,18 @@ const corsOptions = {
     cb(null, true)
   },
 }
+
+// top-level middlewares
+app.use(session({
+  saveUninitialized: false,
+  resave: false,
+  secret: 'jdkfksd8934-@_75634kjdkjfdkssdfg',
+  store: sessionStore,
+  cookie: {
+    // maxAge: 1200_000
+  }
+}));
+
 app.use(cors(corsOptions))
 
 //傳入資料解析為json格式
@@ -60,7 +71,56 @@ app.use('/data', require('./routes/get-random-data'))
 
 
 //login的路由
-app.use('/login', require('./routes/login'))
+// app.use('/login', require('./routes/login'))
+app.post('/login', async (req, res) => {
+  const output = {
+    success: false,
+    error: '帳號或密碼錯誤 !!!',
+    code: 0,
+    postData: req.body,
+    token: ''
+  };
+
+  const sql = "SELECT * FROM member WHERE account=?";
+
+
+  const [rows] = await db.query(sql, [req.body.account]);
+
+  if(!rows.length){
+    // 帳號是錯的
+    output.code = 401;
+    return res.json(output);
+  }
+
+
+  let passwordCorrect = false; // 預設密碼是錯的
+  try{
+    passwordCorrect = await bcrypt.compare(req.body.password, rows[0].password);
+  } catch(ex){}
+
+
+  if(! passwordCorrect){
+    // 密碼是錯的
+    output.code = 402;
+  } else {
+    output.success = true;
+    output.code = 200;
+    output.error = '';
+
+
+    req.session.member = {
+      sid: rows[0].sid,
+      account: rows[0].account,
+    }    
+    output.token = jwt.sign({
+      sid: rows[0].sid,
+      account: rows[0].account,
+    }, process.env.JWT_SECRET);
+    output.accountId = rows[0].sid;
+    output.account = rows[0].account;
+  }
+  res.json(output);
+});
 
 //測試新的路由
 // app.use('/test', require('./routes/test'))
