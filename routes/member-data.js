@@ -33,11 +33,10 @@ const getListData = async (req, res) => {
     if (page > totalPages) {
       redirect = req.baseUrl + `?page=` + totalPages
     }
-    const sql = `SELECT * FROM member 
-    WHERE 1 
-    ORDER BY sid ASC 
-    LIMIT ${(page - 1) * perPage},${perPage}`
-    ;[rows] = await db.query(sql)
+    // const sql = (`SELECT * FROM member
+    // WHERE 1
+    // ORDER BY sid ASC
+    // LIMIT ${(page - 1) * perPage},${perPage}`[rows] = await db.query(sql))
   }
 
   return {

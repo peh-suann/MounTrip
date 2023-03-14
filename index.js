@@ -124,6 +124,13 @@ app.post('/login', async (req, res) => {
 //測試新的路由
 // app.use('/test', require('./routes/test'))
 
+// --yichun fetch products data
+app.use('/products', require('./routes/yichun_all_products'))
+app.use('/products_popular', require('./routes/yichun_popular_products'))
+app.use('/products_hotspring', require('./routes/yichun_theme_hotspring'))
+app.use('/test', require('./routes/yichun_test'))
+app.use('/answer', require('./routes/yichun_answer'))
+
 //404頁面
 app.use((req, res) => {
   res.status(404).send(`
