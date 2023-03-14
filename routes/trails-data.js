@@ -10,6 +10,7 @@ const moment = require('moment-timezone')
 const getListData = async (req, res) => {
   let redirect = ''
   const perPage = 1
+  // const perPage = 2
   let page = +req.query.page || 1
 
   let queryObj = {}
@@ -99,7 +100,7 @@ const getRatingData = async (req, res) => {
     JOIN member
     on member.sid=rating.member_sid
 
-    WHERE rating.rating_sid=12
+    WHERE trails.sid=6
     `
 
   // return res.send(sql); // SQL 除錯方式之一
