@@ -9,8 +9,8 @@ const moment = require('moment-timezone')
 
 const getListData = async (req, res) => {
   let redirect = ''
-  const perPage = 1
-  // const perPage = 2
+  // const perPage = 1
+  const perPage = 2
   let page = +req.query.page || 1
 
   let queryObj = {}
@@ -32,6 +32,31 @@ const getListData = async (req, res) => {
     if (page > totalPages) {
       redirect = req.baseUrl + `?page=` + totalPages
     }
+
+    // const sql = `
+    // SELECT
+
+    // trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time,
+    // trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid,
+    // trails.coupon_status, trails.price, trails.trails_display,
+    // trails.trail_length, trails.trail_height, trails.trail_gpx ,
+
+    // difficulty_list.difficulty_describ, difficulty_list.difficulty_short,
+
+    // batch.sid,batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min,
+    // batch.batch_max, batch.batch_sold, batch.batch_switch, batch.season_coupon
+
+    // FROM trails
+
+    // JOIN difficulty_list
+    // ON trails.difficulty_list_sid=difficulty_list.sid
+
+    // JOIN batch
+    // ON trails.sid=batch.trail_sid
+
+    // ORDER BY trails.sid
+    // LIMIT ${(page - 1) * perPage}, ${perPage}
+    // `
 
     const sql = `
     SELECT 
@@ -78,14 +103,12 @@ const getListData = async (req, res) => {
   }
 }
 
-// 暫時修改rating	PRIMARY key 名稱為 rating_sid
-
 const getRatingData = async (req, res) => {
   let rows = []
-
+  // 用別名的方式修改
   const sql = `
     SELECT 
-    rating.rating_sid, rating.person, rating.member_sid, rating.trails_sid, rating.score, 
+    rating.sid, rating.person, rating.member_sid, rating.trails_sid, rating.score, 
     rating.rate_date, rating.comment, rating.reply,
     
     trails.sid,
