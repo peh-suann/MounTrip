@@ -13,8 +13,7 @@ const MysqlStore = require('express-mysql-session')(session)
 const Jimp = require('Jimp')
 const moment = require('moment-timezone')
 const cors = require('cors')
-const bcryptjs = require('bcryptjs')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const router = express.Router()
 const app = express()
@@ -33,6 +32,20 @@ const corsOptions = {
     cb(null, true)
   },
 }
+
+// top-level middlewares
+app.use(
+  session({
+    saveUninitialized: false,
+    resave: false,
+    secret: 'jdkfksd8934-@_75634kjdkjfdkssdfg',
+    store: sessionStore,
+    cookie: {
+      // maxAge: 1200_000
+    },
+  })
+)
+
 app.use(cors(corsOptions))
 
 //傳入資料解析為json格式
@@ -59,7 +72,55 @@ app.use('/member', require('./routes/member-data'))
 app.use('/data', require('./routes/get-random-data'))
 
 //login的路由
-app.use('/login', require('./routes/login'))
+// app.use('/login', require('./routes/login'))
+app.post('/login', async (req, res) => {
+  const output = {
+    success: false,
+    error: '帳號或密碼錯誤 !!!',
+    code: 0,
+    postData: req.body,
+    token: '',
+  }
+
+  const sql = 'SELECT * FROM member WHERE account=?'
+
+  const [rows] = await db.query(sql, [req.body.account])
+
+  if (!rows.length) {
+    // 帳號是錯的
+    output.code = 401
+    return res.json(output)
+  }
+
+  let passwordCorrect = false // 預設密碼是錯的
+  try {
+    passwordCorrect = await bcrypt.compare(req.body.password, rows[0].password)
+  } catch (ex) {}
+
+  if (!passwordCorrect) {
+    // 密碼是錯的
+    output.code = 402
+  } else {
+    output.success = true
+    output.code = 200
+    output.error = ''
+
+    req.session.member = {
+      sid: rows[0].sid,
+      account: rows[0].account,
+    }
+    output.token = jwt.sign(
+      {
+        sid: rows[0].sid,
+        account: rows[0].account,
+      },
+      process.env.JWT_SECRET
+    )
+    output.accountId = rows[0].sid
+    output.account = rows[0].account
+  }
+  res.json(output)
+})
 
 //測試新的路由
 // app.use('/test', require('./routes/test'))
@@ -67,9 +128,35 @@ app.use('/login', require('./routes/login'))
 // --yichun fetch products data
 app.use('/products', require('./routes/yichun_all_products'))
 app.use('/products_popular', require('./routes/yichun_popular_products'))
+app.use('/products_sunrise', require('./routes/yichun_popular_sunrise'))
+app.use('/products_holiday', require('./routes/yichun_popular_holiday'))
+app.use('/products_flowers', require('./routes/yichun_popular_flowers'))
 app.use('/products_hotspring', require('./routes/yichun_theme_hotspring'))
 app.use('/test', require('./routes/yichun_test'))
 app.use('/answer', require('./routes/yichun_answer'))
+
+app.get('/insert-random-numbers', async (req, res) => {
+  try {
+    // generate an array of 400 random numbers
+    const randomNumbers = []
+    for (let i = 0; i < 400; i++) {
+      randomNumbers.push(Math.floor(Math.random() * 400) + 1)
+    }
+
+    // insert the random numbers into a row
+    const query = `UPDATE order_detail SET batch_sid = FLOOR(1 + RAND() * 400) WHERE 1`
+    const result = await db.execute(query)
+
+    console.log(result)
+    // close the database connection
+
+    // send a response to the client
+    res.send('Random numbers inserted successfully!')
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('An error occurred while inserting random numbers.')
+  }
+})
 
 //404頁面
 app.use((req, res) => {
