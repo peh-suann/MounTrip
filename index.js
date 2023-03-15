@@ -1,3 +1,4 @@
+// 通訊埠設定 .env
 if (process.argv[2] && process.argv[2] === 'production') {
   require('dotenv').config({
     path: './production.env',
@@ -73,9 +74,22 @@ app.use(express.urlencoded({ extended: false }))
 app.get('/', (req, res) => {
   res.send('<h1>MounTrip首頁</h1>')
 })
-//會員中心用的所有資料
+
+app.get('/try-db', async (req, res) => {
+  const [rows] = await db.query('SELECT * FROM trails LIMIT 5')
+  res.json([rows])
+})
+
+app.use('/', require('./routes/Ian.js'))
 app.use('/member', require('./routes/member-data'))
 
+// app.use('/trails',require('./routes/member-data'))
+
+app.use('/trails', require('./routes/trails-data'))
+
+app.use('/batch', require('./routes/batch-data'))
+
+app.use('/trails-batch', require('./routes/trails-batch'))
 //生成batch假資料用的頁面
 app.use('/data', require('./routes/get-random-data'))
 
@@ -148,6 +162,13 @@ app.post('/login', async (req, res) => {
 
 //測試新的路由
 // app.use('/test', require('./routes/test'))
+
+// --yichun fetch products data
+app.use('/products', require('./routes/yichun_all_products'))
+app.use('/products_popular', require('./routes/yichun_popular_products'))
+app.use('/products_hotspring', require('./routes/yichun_theme_hotspring'))
+app.use('/test', require('./routes/yichun_test'))
+app.use('/answer', require('./routes/yichun_answer'))
 
 //404頁面
 app.use((req, res) => {
