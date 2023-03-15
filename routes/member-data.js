@@ -73,8 +73,6 @@ function authenticateToken(req, res, next) {
 }
 
 router.get('/me/:mid', authenticateToken, async (req, res) => {
-  //res.json(res.locals.bearer)
-
   if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
   const sql = `SELECT * FROM member 
   WHERE sid=?`
@@ -84,6 +82,18 @@ router.get('/me/:mid', authenticateToken, async (req, res) => {
     res.json(rows[0])
   } else {
     res.json({ msg: 'no data' })
+  }
+})
+
+router.get('/me/comment/:mid', authenticateToken, async (req, res) => {
+  if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
+  const sql = `SELECT * FROM rating 
+  WHERE member_sid=?`
+  const [rows] = await db.query(sql, [req.params.mid])
+  if (rows && rows.length) {
+    res.json(rows)
+  } else {
+    res.json({ msg: 'no required data' })
   }
 })
 
