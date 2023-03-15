@@ -35,6 +35,15 @@ const getSeasonComment = async (req, res) => {
   return { rows }
 }
 
+const getSCData = async (req, res) => {
+  let Rows = []
+  Rows = await db.query(
+    'SELECT trails.trail_name,trails.trail_img,trails.price,batch.batch_start,batch.batch_end FROM trails JOIN batch ON trails.sid=batch.trail_sid WHERE batch.trail_sid=160 OR batch.trail_sid=26'
+  )
+  const rows = Rows[0]
+  return { rows }
+}
+
 router.get('/difficulty', async (req, res) => {
   const output = await getdifficultyData(req, res)
   res.json(output)
@@ -51,6 +60,11 @@ router.get('/seasonComment', async (req, res) => {
   const data = await getSeasonComment(req, res)
   res.json(data)
   // console.log(output)
+})
+
+router.get('/sc1', async (req, res) => {
+  const data = await getSCData(req, res)
+  res.json(data)
 })
 
 module.exports = router

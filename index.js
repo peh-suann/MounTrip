@@ -43,7 +43,7 @@ app.get('/try-db', async (req, res) => {
   res.json([rows])
 })
 
-app.use('/Ian', require('./routes/Ian.js'))
+app.use('/', require('./routes/Ian.js'))
 app.use('/member', require('./routes/member-data'))
 // app.use('/trails',require('./routes/member-data'))
 //測試資料庫連線，抓會員資料
