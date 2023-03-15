@@ -58,8 +58,15 @@ app.get('/', (req, res) => {
   res.send('<h1>MounTrip首頁</h1>')
 })
 
+app.get('/try-db', async (req, res) => {
+  const [rows] = await db.query('SELECT * FROM trails LIMIT 5')
+  res.json([rows])
+})
+
+app.use('/', require('./routes/Ian.js'))
 app.use('/member', require('./routes/member-data'))
 
+// app.use('/trails',require('./routes/member-data'))
 //測試資料庫連線，抓會員資料
 // app.get('/member', async (req, res) => {
 //   const [rows] = await db.query('SELECT * FROM `member` ORDER BY sid ASC')

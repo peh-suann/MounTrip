@@ -23,6 +23,8 @@ const pool = mysql.createPool({
   host: '192.168.21.84',
   user: 'mountain',
   password: 'mountaindude55',
+
+  // database: 'mountrip_dev',
   database: 'mountain',
 
   waitForConnections: true,
