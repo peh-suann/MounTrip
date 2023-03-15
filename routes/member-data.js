@@ -1,12 +1,12 @@
 const express = require('express')
 const db = require('../modules/db_connection')
+const jwt = require('jsonwebtoken')
 
 const router = express.Router()
 
 router.use((req, res, next) => {
   next()
 })
-
 
 const getListData = async (req, res) => {
   let redirect = ''
@@ -55,6 +55,36 @@ router.get('/', async (req, res) => {
     return res.redirect(output.redirect)
   }
   res.json(output) //呈現list表單
+})
+
+//驗證用的callback func
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization']
+  // console.log('authHeader', authHeader)
+  const token = authHeader && authHeader.split(' ')[1]
+  //check if thet token under 'BEARER' is valid
+  if (!token) return res.sendStatus(402)
+  //驗證（解碼）這個token
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403) //有看到token但帳號密碼不正確
+    req.user = user
+    next()
+  })
+}
+
+router.get('/me/:mid', authenticateToken, async (req, res) => {
+  //res.json(res.locals.bearer)
+
+  if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
+  const sql = `SELECT * FROM member 
+  WHERE sid=?`
+  const [rows] = await db.query(sql, [req.params.mid])
+
+  if (rows && rows.length) {
+    res.json(rows[0])
+  } else {
+    res.json({ msg: 'no data' })
+  }
 })
 
 router.get('/api', async (req, res) => {
