@@ -14,6 +14,7 @@ const MysqlStore = require('express-mysql-session')(session)
 const Jimp = require('Jimp')
 const moment = require('moment-timezone')
 const cors = require('cors')
+const multer = require('multer')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const app = express()
@@ -46,6 +47,19 @@ app.use(
     },
   })
 )
+//照片上傳 multer套件
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'images/uploads/')
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+  },
+})
+const upload = multer({
+  storage: storage,
+  limits: { filesize: 2 * 1024 * 1024 },
+})
 
 //傳入資料解析為json格式
 app.use(express.json())
@@ -164,9 +178,9 @@ app.post('/login', async (req, res) => {
 // app.use('/test', require('./routes/test'))
 
 // --yichun fetch products data
-app.use('/products', require('./routes/yichun_all_products'))
-app.use('/products_popular', require('./routes/yichun_popular_products'))
-app.use('/products_hotspring', require('./routes/yichun_theme_hotspring'))
+// app.use('/products', require('./routes/yichun_all_products'))
+// app.use('/products_popular', require('./routes/yichun_popular_products'))
+// app.use('/products_hotspring', require('./routes/yichun_theme_hotspring'))
 app.use('/test', require('./routes/yichun_test'))
 app.use('/answer', require('./routes/yichun_answer'))
 

@@ -1,6 +1,8 @@
 const express = require('express')
 const db = require('../modules/db_connection')
 const jwt = require('jsonwebtoken')
+const multer = require('multer')
+const path = require('path')
 
 const router = express.Router()
 
@@ -48,6 +50,7 @@ const getListData = async (req, res) => {
     redirect,
   }
 }
+
 router.get('/', async (req, res) => {
   const output = await getListData(req, res)
   if (output.redirect) {
@@ -71,19 +74,6 @@ function authenticateToken(req, res, next) {
   })
 }
 
-router.get('/me/:mid', authenticateToken, async (req, res) => {
-  if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
-  const sql = `SELECT * FROM member 
-  WHERE sid=?`
-  const [rows] = await db.query(sql, [req.params.mid])
-
-  if (rows && rows.length) {
-    res.json(rows[0])
-  } else {
-    res.json({ msg: 'no data' })
-  }
-})
-
 router.get('/me/comment/:mid', authenticateToken, async (req, res) => {
   if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
   const sql = `SELECT * FROM rating 
@@ -93,6 +83,67 @@ router.get('/me/comment/:mid', authenticateToken, async (req, res) => {
     res.json(rows)
   } else {
     res.json({ msg: 'no required data' })
+  }
+})
+
+//照片上傳 multer套件
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'images/uploads/')
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname)
+    const filename = Math.random().toString(36).substring(2, 10) + ext
+
+    cb(null, filename)
+  },
+})
+const upload = multer({
+  storage: storage,
+  limits: { filesize: 2 * 1024 * 1024 },
+})
+const setUserImg = async (req, res) => {}
+//大頭照上傳的路由
+router.post(
+  '/me/upload',
+  authenticateToken,
+  upload.single('file'),
+  async (req, res) => {
+    let fileName = ''
+    fileName = req.file.filename
+    // const authHeader = req.headers['authorization']
+    const sid = req.headers['sid']
+    const sql = 'UPDATE `member` SET `img`=? WHERE `sid`=? '
+    const [result] = await db.query(sql, [fileName, sid])
+    console.log(fileName)
+    //FIXME 上傳成功的告示
+    const report = {
+      code: 200,
+      status: '上傳成功',
+    }
+    res.json({ report })
+  }
+)
+// TODO 加上驗證（&動態路由？）
+router.get('/me/avatar', authenticateToken, async (req, res) => {
+  const sid = req.headers['sid']
+  const sql = 'SELECT `img` FROM `member` WHERE `sid`=?'
+  const [result] = await db.query(sql, [sid])
+  res.json(result[0])
+})
+
+router.get('/me/:mid', authenticateToken, async (req, res) => {
+  if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
+  const sql = `SELECT * FROM member 
+  WHERE sid=?`
+  const [rows] = await db.query(sql, [req.params.mid])
+  const avatarFileName = rows[0].img
+  // console.log('name:', rows[0].img)
+
+  if (rows && rows.length) {
+    res.json(rows[0])
+  } else {
+    res.json({ msg: 'no data' })
   }
 })
 
