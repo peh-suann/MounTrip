@@ -207,6 +207,30 @@ app.post('/signin', async (req, res) => {
   res.json(output)
 })
 
+// kexin 首頁縣市搜尋行程
+// app.get('/search', (req, res) => {
+//   // const { query } = req.query;
+//   console.log(req.body);
+//   // const sql = `
+//   //   SELECT COUNT(*) AS count, trails.trail_name, trails.geo_location_sid, trails.geo_location_town_sid, trails.price, trails.sid AS trails_sid, trails.trail_img
+//   //   FROM order_detail
+//   //   JOIN trails ON order_detail.trails_sid = trails.sid
+//   //   WHERE trails.sid IS NOT NULL AND trails.sid <> '' AND trails.geo_location_sid = ?
+//   //   GROUP BY order_detail.trails_sid
+//   //   ORDER BY count DESC
+//   //   LIMIT 6
+//   // `;
+//   // connection.query(sql, [query], (error, results) => {
+//   //   if (error) {
+//   //     console.error(error);
+//   //     res.status(500).send('Internal server error');
+//   //   } else {
+//   //     res.json(results);
+//   //   }
+//   // });
+// });
+app.use('/select_products', require('./routes/kexin_select_county_products'))
+
 
 //測試新的路由
 // app.use('/test', require('./routes/test'))
