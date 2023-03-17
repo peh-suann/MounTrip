@@ -132,6 +132,7 @@ app.use('/products_sunrise', require('./routes/yichun_popular_sunrise'))
 app.use('/products_holiday', require('./routes/yichun_popular_holiday'))
 app.use('/products_flowers', require('./routes/yichun_popular_flowers'))
 app.use('/products_hotspring', require('./routes/yichun_theme_hotspring'))
+app.use('/products_location', require('./routes/yichun_popular_locations'))
 app.use('/test', require('./routes/yichun_test'))
 app.use('/answer', require('./routes/yichun_answer'))
 
