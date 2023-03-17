@@ -143,6 +143,7 @@ app.post('/login', async (req, res) => {
     output.code = 401
     return res.json(output)
   }
+  
   let passwordCorrect = false // 預設密碼是錯的
   try {
     passwordCorrect = await bcrypt.compare(req.body.password, rows[0].password)
