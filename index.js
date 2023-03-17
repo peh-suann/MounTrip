@@ -14,6 +14,7 @@ const MysqlStore = require('express-mysql-session')(session)
 const Jimp = require('Jimp')
 const moment = require('moment-timezone')
 const cors = require('cors')
+const multer = require('multer')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const app = express()
@@ -46,8 +47,21 @@ app.use(
     },
   })
 )
+//照片上傳 multer套件
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'images/uploads/')
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+  },
+})
+const upload = multer({
+  storage: storage,
+  limits: { filesize: 2 * 1024 * 1024 },
+})
 
-app.use(cors(corsOptions))
+
 
 //傳入資料解析為json格式
 app.use(express.json())
@@ -129,7 +143,12 @@ app.post('/login', async (req, res) => {
     output.code = 401
     return res.json(output)
   }
-
+  let passwordCorrect = false // 預設密碼是錯的
+  try {
+    passwordCorrect = await bcrypt.compare(req.body.password, rows[0].password)
+  } catch (ex) {
+    console.log('出現錯誤')
+  }
   if (!passwordCorrect) {
     // 密碼是錯的
     output.code = 402
