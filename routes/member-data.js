@@ -86,36 +86,41 @@ router.get('/me/comment/:mid', authenticateToken, async (req, res) => {
   }
 })
 
-//照片上傳 multer套件
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'images/uploads/')
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname)
-    const filename = Math.random().toString(36).substring(2, 10) + ext
+//照片上傳 multer套件，儲存到固定路徑時才能使用diskStorage
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'images/uploads/')
+//   },
+//   filename: (req, file, cb) => {
+//     const ext = path.extname(file.originalname)
+//     const filename = Math.random().toString(36).substring(2, 10) + ext
 
-    cb(null, filename)
-  },
-})
+//     cb(null, filename)
+//   },
+// })
+const storage = multer.memoryStorage()
+//設定Multer
 const upload = multer({
   storage: storage,
   limits: { filesize: 2 * 1024 * 1024 },
 })
-const setUserImg = async (req, res) => {}
+// const setUserImg = async (req, res) => {}
 //大頭照上傳的路由
 router.post(
   '/me/upload',
   authenticateToken,
-  upload.single('file'),
+  upload.single('file'), //接收input name = file 的欄位來的資料，一個檔案
   async (req, res) => {
     let fileName = ''
     fileName = req.file.filename
+    //FIXME blobFile 未定義
+    const blobFile = req.file.buffer
     // const authHeader = req.headers['authorization']
     const sid = req.headers['sid']
+    //TODO 重複上傳要怎麼寫？
     const sql = 'UPDATE `member` SET `img`=? WHERE `sid`=? '
-    const [result] = await db.query(sql, [fileName, sid])
-    console.log(fileName)
+    const [result] = await db.query(sql, [blobFile, sid]) //要亂碼的名字選fileName，BLOBfile is for 二進位資料存在db
+    // console.log(req.file)
     //FIXME 上傳成功的告示
     const report = {
       code: 200,
@@ -138,10 +143,12 @@ router.get('/me/:mid', authenticateToken, async (req, res) => {
   WHERE sid=?`
   const [rows] = await db.query(sql, [req.params.mid])
   const avatarFileName = rows[0].img
-  // console.log('name:', rows[0].img)
 
+  const imgOutput = Buffer.from(avatarFileName).toString('base64')
+  console.log('imgOutput', imgOutput)
   if (rows && rows.length) {
     res.json(rows[0])
+    // res.send({ imgOutput })
   } else {
     res.json({ msg: 'no data' })
   }
