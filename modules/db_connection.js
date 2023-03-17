@@ -11,18 +11,18 @@ const mysql = require('mysql2')
 // })
 
 const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '',
+  // host: 'localhost',
+  // user: 'root',
+  // password: '',
   // database: 'mountrip',
   // host: '127.0.0.1',
   // user: 'root',
   // password: '',
   // database: 'mountrip',
 
-  // host: '192.168.21.84',
-  // user: 'mountain',
-  // password: 'mountaindude55',
+  host: '192.168.21.84',
+  user: 'mountain',
+  password: 'mountaindude55',
 
   // host: 'localhost',
   // host: '192.168.21.84',

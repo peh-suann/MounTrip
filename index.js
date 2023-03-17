@@ -168,9 +168,36 @@ app.post('/login', async (req, res) => {
 // --yichun fetch products data
 app.use('/products', require('./routes/yichun_all_products'))
 app.use('/products_popular', require('./routes/yichun_popular_products'))
+app.use('/products_sunrise', require('./routes/yichun_popular_sunrise'))
+app.use('/products_holiday', require('./routes/yichun_popular_holiday'))
+app.use('/products_flowers', require('./routes/yichun_popular_flowers'))
 app.use('/products_hotspring', require('./routes/yichun_theme_hotspring'))
+app.use('/products_location', require('./routes/yichun_popular_locations'))
 app.use('/test', require('./routes/yichun_test'))
 app.use('/answer', require('./routes/yichun_answer'))
+
+app.get('/insert-random-numbers', async (req, res) => {
+  try {
+    // generate an array of 400 random numbers
+    const randomNumbers = []
+    for (let i = 0; i < 400; i++) {
+      randomNumbers.push(Math.floor(Math.random() * 400) + 1)
+    }
+
+    // insert the random numbers into a row
+    const query = `UPDATE order_detail SET batch_sid = FLOOR(1 + RAND() * 400) WHERE 1`
+    const result = await db.execute(query)
+
+    console.log(result)
+    // close the database connection
+
+    // send a response to the client
+    res.send('Random numbers inserted successfully!')
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('An error occurred while inserting random numbers.')
+  }
+})
 
 //404頁面
 app.use((req, res) => {
