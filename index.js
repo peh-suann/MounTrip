@@ -28,24 +28,22 @@ const sessionStore = new MysqlStore({}, db) //一定要給的連線設定
 const corsOptions = {
   Credential: true,
   origin: function (origin, cb) {
-    console.log({ origin })
+    // console.log({ origin })
     cb(null, true)
   },
 }
 
 app.use(cors(corsOptions))
 // top-level middlewares
-app.use(
-  session({
-    saveUninitialized: false,
-    resave: false,
-    secret: 'jdkfksd8934-@_75634kjdkjfdkssdfg',
-    store: sessionStore,
-    cookie: {
-      // maxAge: 1200_000
-    },
-  })
-)
+app.use(session({
+  saveUninitialized: false,
+  resave: false,
+  secret: 'jdkfksd8934-@_75634kjdkjfdkssdfg',
+  store: sessionStore,
+  cookie: {
+    // maxAge: 1200_000
+  }
+}));
 
 app.use(cors(corsOptions))
 
@@ -130,12 +128,6 @@ app.post('/login', async (req, res) => {
     return res.json(output)
   }
 
-  let passwordCorrect = false // 預設密碼是錯的
-  try {
-    passwordCorrect = await bcrypt.compare(req.body.password, rows[0].password)
-  } catch (ex) {
-    console.log('出現錯誤')
-  }
 
   if (!passwordCorrect) {
     // 密碼是錯的
@@ -148,19 +140,16 @@ app.post('/login', async (req, res) => {
     req.session.member = {
       sid: rows[0].sid,
       account: rows[0].account,
-    }
-    output.token = jwt.sign(
-      {
-        sid: rows[0].sid,
-        account: rows[0].account,
-      },
-      process.env.JWT_SECRET
-    )
-    output.accountId = rows[0].sid
-    output.account = rows[0].account
+    }    
+    output.token = jwt.sign({
+      sid: rows[0].sid,
+      account: rows[0].account,
+    }, process.env.JWT_SECRET);
+    output.accountId = rows[0].sid;
+    output.account = rows[0].account;
   }
-  res.json(output)
-})
+  res.json(output);
+});
 
 //測試新的路由
 // app.use('/test', require('./routes/test'))
