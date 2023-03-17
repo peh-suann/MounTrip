@@ -151,6 +151,58 @@ app.post('/login', async (req, res) => {
   res.json(output);
 });
 
+//signin的路由
+app.post('/signin', async (req, res) => {
+  const output = {
+    success: false,
+    error: '尚未註冊成功 !!!',
+    code: 0,
+    postData: req.body,
+    token: '',
+  }
+
+  // console.log(req.body)
+  // const sql = "SELECT * FROM member WHERE account=?";
+  const sql =
+    "INSERT INTO `member`( `account`, `password`, `display`) VALUES (?,?,'1')"
+
+
+  // console.log(bcrypt.hash(req.body.password))
+  const hash = bcrypt.hashSync(req.body.password, 10);
+  console.log(hash);
+  const [rows] = await db.query(sql, [req.body.account, hash])
+  // console.log(rows)
+  // console.log(rows.insertId)
+
+  if (!rows.insertId) {
+    // 帳號是錯的
+    output.code = 401
+    return res.json(output)
+  }
+
+  if (req.body.password===req.body.password1) {
+    output.success = true
+    output.code = 200
+    output.error = ''
+
+    req.session.member = {
+      accountId: rows.insertId,
+    }
+    output.token = jwt.sign(
+      {
+        accountId: rows.insertId,
+      },
+      process.env.JWT_SECRET
+    )
+    output.account = req.body.account
+  } else {
+    output.error = '輸入密碼不相同'
+  }
+
+  res.json(output)
+})
+
+
 //測試新的路由
 // app.use('/test', require('./routes/test'))
 
