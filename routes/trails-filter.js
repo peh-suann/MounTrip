@@ -10,7 +10,7 @@ router.use((req, res, next) => {
 const getListData = async (req, res) => {
   let redirect = ''
   // const perPage = 1
-  const perPage = 6
+  const perPage = 10
   let page = +req.query.page || 1
 
   let sqlWhere = ' WHERE 1 ' // 條件式的開頭
@@ -125,14 +125,6 @@ const getAllData = async (req, res) => {
     ;[rows] = await db.query(sql)
   }
 
-  router.get('/all', async (req, res) => {
-    const output = await getAllData(req, res)
-    if (output.redirect) {
-      return res.redirect(output.redirect)
-    }
-    res.json(output) //呈現list表單
-  })
-
   // return res.send(sql); //SQL 除錯方式
 
   return {
@@ -144,6 +136,14 @@ const getAllData = async (req, res) => {
     redirect,
   }
 }
+
+router.get('/all', async (req, res) => {
+  const output = await getAllData(req, res)
+  if (output.redirect) {
+    return res.redirect(output.redirect)
+  }
+  res.json(output) //呈現list表單
+})
 
 // router.get('/api', async (req, res) => {
 //   res.json(await getListData(req, res))
