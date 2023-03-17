@@ -16,7 +16,6 @@ const moment = require('moment-timezone')
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const router = express.Router()
 const app = express()
 
 //DB連接
@@ -34,6 +33,7 @@ const corsOptions = {
   },
 }
 
+app.use(cors(corsOptions))
 // top-level middlewares
 app.use(
   session({
@@ -51,10 +51,27 @@ app.use(cors(corsOptions))
 
 //傳入資料解析為json格式
 app.use(express.json())
+//解析透過url傳輸過來的資料
+app.use(express.urlencoded({ extended: false }))
 
-router.use((req, res, next) => {
-  next()
-})
+//老師的index.js 51行 //檢查HTTPS req中的Authorization是否包含有效的JWT，並將其傳到res.locals.bearer
+// app.use((req, res, next) => {
+//   res.locals.bearer = {} // 預設值
+//   // 取得 headers 裡的 Authorization
+//   let auth = req.get('Authorization')
+//   if (auth && auth.indexOf('Bearer ') === 0) {
+//     //auth存在，且auth是已'bearer'做為前綴
+//     auth = auth.split(' ')[1] // token
+//     try {
+//       res.locals.bearer = jwt.verify(auth, process.env.JWT_SECRET)
+//     } catch (ex) {
+//       res.sendState(404)
+//     }
+//   }
+//   // console.log('res.locals.bearer:', res.locals.bearer);
+
+//   next()
+// })
 //首頁
 app.get('/', (req, res) => {
   res.send('<h1>MounTrip首頁</h1>')
@@ -69,13 +86,6 @@ app.use('/', require('./routes/Ian.js'))
 app.use('/member', require('./routes/member-data'))
 
 // app.use('/trails',require('./routes/member-data'))
-//測試資料庫連線，抓會員資料
-// app.get('/member', async (req, res) => {
-//   const [rows] = await db.query('SELECT * FROM `member` ORDER BY sid ASC')
-//   res.json(rows)
-// })
-
-// app.use('/member-data',require("./routes/member-data"))
 
 app.use('/trails', require('./routes/trails-data'))
 
@@ -84,6 +94,20 @@ app.use('/batch', require('./routes/batch-data'))
 app.use('/trails-batch', require('./routes/trails-batch'))
 //生成batch假資料用的頁面
 app.use('/data', require('./routes/get-random-data'))
+
+//驗證用的callback func
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+  //check if thet token under 'BEARER' is valid
+  if (!token) return res.sendStatus(401)
+  //驗證（解碼）這個token
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403) //有看到token但帳號密碼不正確
+    req.user = user
+    next()
+  })
+}
 
 //login的路由
 // app.use('/login', require('./routes/login'))
@@ -109,7 +133,9 @@ app.post('/login', async (req, res) => {
   let passwordCorrect = false // 預設密碼是錯的
   try {
     passwordCorrect = await bcrypt.compare(req.body.password, rows[0].password)
-  } catch (ex) {}
+  } catch (ex) {
+    console.log('出現錯誤')
+  }
 
   if (!passwordCorrect) {
     // 密碼是錯的
@@ -154,7 +180,7 @@ app.use((req, res) => {
         `)
 })
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3001
 app.listen(port, () => {
   console.log(`伺服器啟動:${port}`)
 })

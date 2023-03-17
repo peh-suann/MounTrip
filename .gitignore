@@ -1,6 +1,8 @@
 /node_modules
 dev.env
 production.env
+.env
+
 package-lock.json
 
 public/fontawesome
@@ -62,4 +64,6 @@ Thumbs.db
 *.png
 
 dev.env
-production.env
+# production.env
+# production.env
+*.env
