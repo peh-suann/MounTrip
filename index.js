@@ -35,15 +35,17 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 // top-level middlewares
-app.use(session({
-  saveUninitialized: false,
-  resave: false,
-  secret: 'jdkfksd8934-@_75634kjdkjfdkssdfg',
-  store: sessionStore,
-  cookie: {
-    // maxAge: 1200_000
-  }
-}));
+app.use(
+  session({
+    saveUninitialized: false,
+    resave: false,
+    secret: 'jdkfksd8934-@_75634kjdkjfdkssdfg',
+    store: sessionStore,
+    cookie: {
+      // maxAge: 1200_000
+    },
+  })
+)
 
 app.use(cors(corsOptions))
 
@@ -128,7 +130,6 @@ app.post('/login', async (req, res) => {
     return res.json(output)
   }
 
-
   if (!passwordCorrect) {
     // 密碼是錯的
     output.code = 402
@@ -140,16 +141,19 @@ app.post('/login', async (req, res) => {
     req.session.member = {
       sid: rows[0].sid,
       account: rows[0].account,
-    }    
-    output.token = jwt.sign({
-      sid: rows[0].sid,
-      account: rows[0].account,
-    }, process.env.JWT_SECRET);
-    output.accountId = rows[0].sid;
-    output.account = rows[0].account;
+    }
+    output.token = jwt.sign(
+      {
+        sid: rows[0].sid,
+        account: rows[0].account,
+      },
+      process.env.JWT_SECRET
+    )
+    output.accountId = rows[0].sid
+    output.account = rows[0].account
   }
-  res.json(output);
-});
+  res.json(output)
+})
 
 //signin的路由
 app.post('/signin', async (req, res) => {
@@ -166,10 +170,9 @@ app.post('/signin', async (req, res) => {
   const sql =
     "INSERT INTO `member`( `account`, `password`, `display`) VALUES (?,?,'1')"
 
-
   // console.log(bcrypt.hash(req.body.password))
-  const hash = bcrypt.hashSync(req.body.password, 10);
-  console.log(hash);
+  const hash = bcrypt.hashSync(req.body.password, 10)
+  console.log(hash)
   const [rows] = await db.query(sql, [req.body.account, hash])
   // console.log(rows)
   // console.log(rows.insertId)
@@ -180,7 +183,7 @@ app.post('/signin', async (req, res) => {
     return res.json(output)
   }
 
-  if (req.body.password===req.body.password1) {
+  if (req.body.password === req.body.password1) {
     output.success = true
     output.code = 200
     output.error = ''
@@ -201,7 +204,6 @@ app.post('/signin', async (req, res) => {
 
   res.json(output)
 })
-
 
 //測試新的路由
 // app.use('/test', require('./routes/test'))
