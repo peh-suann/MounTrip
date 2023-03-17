@@ -3564,6 +3564,7 @@
     "minimist" "^1.2.6"
 
 "moment-timezone@^0.5.41":
+"moment-timezone@^0.5.41":
   "integrity" "sha512-e0jGNZDOHfBXJGz8vR/sIMXvBIGJJcqFjmlg9lmE+5KX1U7/RZNMswfD8nKnNCnQdKTIj50IaRKwl1fvMLyyRg=="
   "resolved" "https://registry.npmjs.org/moment-timezone/-/moment-timezone-0.5.41.tgz"
   "version" "0.5.41"

@@ -15,10 +15,6 @@ const pool = mysql.createPool({
   user: 'root',
   password: '',
   // database: 'mountrip',
-  // host: '127.0.0.1',
-  // user: 'root',
-  // password: '',
-  // database: 'mountrip',
 
   // host: '192.168.21.84',
   // user: 'mountain',
