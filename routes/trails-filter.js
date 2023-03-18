@@ -80,7 +80,7 @@ router.get('/', async (req, res) => {
 // 篩選搜尋用
 const getAllData = async (req, res) => {
   let redirect = ''
-  const perPage = 200
+  const perPage = 400
   let page = +req.query.page || 1
 
   let sqlWhere = ' WHERE 1 ' // 條件式的開頭
