@@ -7,7 +7,6 @@ router.use((req, res, next) => {
   next()
 })
 
-// 篩選呈現用
 const getListData = async (req, res) => {
   let redirect = ''
   // const perPage = 1
@@ -77,33 +76,10 @@ router.get('/', async (req, res) => {
   res.json(output) //呈現list表單
 })
 
-// 篩選搜尋用
 const getAllData = async (req, res) => {
-  let redirect = ''
-  const perPage = 400
-  let page = +req.query.page || 1
-
-  let sqlWhere = ' WHERE 1 ' // 條件式的開頭
-
   let rows = []
 
-  page = parseInt(page)
-
-  if (page < 1) {
-    redirect = req.baseUrl // 設定要轉向的 URL
-  }
-  // 算總筆數
-  const [[{ totalRows }]] = await db.query(
-    `SELECT COUNT(1) totalRows FROM trails ${sqlWhere} `
-  )
-  const totalPages = Math.ceil(totalRows / perPage) // 總頁數
-
-  if (totalRows > 0) {
-    if (page > totalPages) {
-      redirect = req.baseUrl + `?page=` + totalPages
-    }
-
-    const sql = `
+  const sql = `
   SELECT 
 
   trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time, 
@@ -126,27 +102,21 @@ const getAllData = async (req, res) => {
 
 
   ORDER BY trails.sid 
-  LIMIT ${(page - 1) * perPage}, ${perPage}
+
   `
 
-    ;[rows] = await db.query(sql)
+  ;[rows] = await db.query(sql)
 
-    const fm = 'YYYY-MM-DD'
-    rows.forEach((v) => {
-      v.batch_start = moment(v.batch_start).format(fm)
-      v.batch_end = moment(v.batch_end).format(fm)
-    })
-  }
+  const fm = 'YYYY-MM-DD'
+  rows.forEach((v) => {
+    v.batch_start = moment(v.batch_start).format(fm)
+    v.batch_end = moment(v.batch_end).format(fm)
+  })
 
   // return res.send(sql); //SQL 除錯方式
 
   return {
-    totalRows,
-    totalPages,
-    perPage,
-    page,
     rows,
-    redirect,
   }
 }
 
