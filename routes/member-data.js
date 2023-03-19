@@ -73,15 +73,123 @@ function authenticateToken(req, res, next) {
     next()
   })
 }
+//FIXME
+//可以抓到訂單細節資訊＋訂單內涵商品資訊細節的函式
+const getUserOrder = async (req, res, oid) => {
+  //FIXME
+  // const sql = `SELECT trails.trail_name, trails.trail_img, trails.trail_short_describ, trails.price, batch.batch_start, batch.batch_end, order_detail.amount FROM order_detail JOIN batch ON order_detail.batch_sid = batch.sid JOIN trails ON batch.trail_sid = trails.sid WHERE order_detail.order_sid =? `
+  const sql = `SELECT * FROM order_detail WHERE order_detail.order_sid=? `
+  const [rows] = await db.query(sql, oid)
+  console.log(rows)
+  return rows
+}
+//抓取訂單order_list的函式
+const getOrder = async (req, res, sid) => {
+  const sql = `SELECT order_list.sid, order_list.order_date, order_list.member_sid, order_list.order_status_sid, order_list.total FROM order_list JOIN order_status ON order_list.order_status_sid = order_status.sid WHERE order_list.member_sid=? ORDER BY CASE WHEN order_status.sid=2 THEN 0 ELSE 1 END, order_status.sid ASC`
+  const [rows] = await db.query(sql, sid)
+  return rows
+}
+//  抓訂單比數資料的路由，用在HistoryOrderCard Component上
+router.get('/me/order', authenticateToken, async (req, res) => {
+  // if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
+  const sid = req.headers['sid']
+
+  const rowsOrder = await getOrder(req, res, sid)
+
+
+  // 訂單比數資料日期格式轉換
+  const convertedRowsOrder = rowsOrder.map((v, i) => {
+    const date = new Date(v.order_date)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const orderDateFormat = `${year}/${month}/${day}`
+    return {
+      ...v,
+      orderDateFormat: orderDateFormat,
+    }
+  })
+
+  let output = {
+    orderSidData: convertedRowsOrder,
+    // data: convertedRows,
+    msg: '',
+  }
+  if (rowsOrder) {
+    output = {
+      orderSidData: convertedRowsOrder,
+      // data: convertedRows,
+      msg: 'success',
+    }
+  } else {
+    output = {
+      orderSidData: convertedRowsOrder,
+      // data: convertedRows,
+      msg: 'failed',
+    }
+  }
+  // console.log(convertedRowsOrder)
+  res.json(output)
+})
+
+//抓商品細節用的路由，用在HistoryProduct Component
+router.get('/me/order/product-detail', authenticateToken, async (req, res) => {
+  const sid = req.headers['sid']
+  const orderId = req.headers['orderId']
+  const rows = await getUserOrder(req, res, orderId)
+
+  //  細節資料進行日期格式、訂單號碼格式轉換
+  const convertedRows = rows.map((v, i) => {
+    const startDate = new Date(v.batch_start)
+    const endDate = new Date(v.batch_end)
+    const orderDate = new Date(v.order_date)
+    const orderSID = String(v.order_sid).padStart(3, '0')
+    const Syear = startDate.getFullYear()
+    const Eyear = endDate.getFullYear()
+    const Oyear = orderDate.getFullYear()
+    const Smonth = String(startDate.getMonth() + 1).padStart(2, '0')
+    const Emonth = String(endDate.getMonth() + 1).padStart(2, '0')
+    const Omonth = String(orderDate.getMonth() + 1).padStart(2, '0')
+    const Sday = String(startDate.getDate()).padStart(2, '0')
+    const Eday = String(endDate.getDate()).padStart(2, '0')
+    const Oday = String(orderDate.getDate()).padStart(2, '0')
+    const orderDateFormat = `${Oyear}/${Omonth}/${Oday}`
+    const startDateFormat = `${Syear}/${Smonth}/${Sday}`
+    const endDateFormat = `${Eyear}/${Emonth}/${Eday}`
+    return {
+      ...v,
+      // orderDate: orderDateFormat,
+      startDate: startDateFormat,
+      endDate: endDateFormat,
+      // orderSID: orderSID,
+    }
+  })
+
+  let output = {
+    data: convertedRows,
+    msg: '',
+  }
+  if (rows) {
+    output = {
+      data: convertedRows,
+      msg: 'success',
+    }
+  } else {
+    output = {
+      data: convertedRows,
+      msg: 'failed',
+    }
+  }
+  console.log(output)
+  res.json(output)
+})
 
 router.get('/me/comment/:mid', authenticateToken, async (req, res) => {
   if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
-  // const sql = `SELECT trails.trail_name, batch.batch_start, batch.batch_end, rating.score, rating.comment, rating.reply, order_list.sid FROM order_list JOIN rating ON order_list.member_sid = rating.member_sid JOIN order_detail ON order_detail.order_sid = order_list.sid JOIN batch ON batch.sid = order_detail.batch_sid JOIN trails ON trails.sid = rating.trails_sid WHERE rating.member_sid=? `
-  const sql = `SELECT rating.score, rating.comment, rating.reply, order_list.sid FROM rating JOIN order_list ON rating.member_sid = order_list.member_sid JOIN order_detail ON order_detail.order_sid = order_list.sid WHERE rating.member_sid=? AND order_list.order_status_sid = 2`
-  // JOIN batch ON batch.sid = order_detail.batch_sid
-  // AND order_detail.batch_sid = batch.sid
+  const sql = `SELECT trails.trail_name, batch.batch_start, batch.batch_end, rating.score, rating.comment, rating.reply, order_list.sid FROM order_list JOIN rating ON order_list.member_sid = rating.member_sid JOIN order_detail ON order_detail.order_sid = order_list.sid JOIN batch ON batch.sid = order_detail.batch_sid JOIN trails ON trails.sid = rating.trails_sid WHERE rating.member_sid=? `
+  const sql2 = `SELECT * FROM rating JOIN trails ON rating.trails_sid = trails.sid JOIN order_list ON order_list.member_sid = rating.member_sid AND order_list.order_status_sid = 2 JOIN batch ON batch.sid = rating.batch_sid WHERE rating.member_sid =? `
   // const sqlTrailName = `SELECT trails.trail_name,`
-  const [rows] = await db.query(sql, [req.params.mid])
+  const [rows] = await db.query(sql2, [req.params.mid])
   const convertedRows = rows.map((v, i) => {
     const startDate = new Date(v.batch_start)
     const endDate = new Date(v.batch_end)
@@ -164,7 +272,7 @@ router.post(
 // })
 const getUserCoupon = async (req, res, sid) => {
   const sql =
-    'SELECT coupon.sid AS coupon_sid, coupon_code, coupon_name, start_date_coup, end_date_coup, coupon_status FROM coupon JOIN member_coupon ON member_coupon.coupon_sid = coupon.sid WHERE member_coupon.member_sid =? ORDER BY coupon.sid ASC'
+    'SELECT coupon.sid AS coupon_sid, coupon_code, coupon_name, start_date_coup, end_date_coup, promo_name, coupon_status FROM coupon JOIN member_coupon ON member_coupon.coupon_sid = coupon.sid WHERE member_coupon.member_sid =? ORDER BY coupon.sid ASC'
   const [rows] = await db.query(sql, sid)
   // const convertedRows = [...rows]
   const convertedRows = rows.map((v, i) => {
@@ -191,9 +299,7 @@ const getUserCoupon = async (req, res, sid) => {
 
 router.get('/me/coupon', authenticateToken, async (req, res) => {
   const sid = req.headers['sid']
-  // const sid = 2
   const output = await getUserCoupon(req, res, sid)
-
   res.json(output)
 })
 //抓所有會員資料
