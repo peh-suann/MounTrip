@@ -2,22 +2,21 @@ const mysql = require('mysql2')
 
 const pool = mysql.createPool({
   // yichun's connection
-  host: '127.0.0.1',
-  user: 'root',
-  password: '',
-  database: 'mountrip',
+  // host: '127.0.0.1',
+  // user: 'root',
+  // password: '',
+  // database: 'mountrip',
 
   // host: '192.168.21.84',
   // user: 'mountain',
   // password: 'mountaindude55',
-  // database: 'mountain',
 
   // host: 'localhost',
-  // host: '192.168.21.84',
+  host: '192.168.21.84',
   // user: 'root',
-  // user: 'mountain',
+  user: 'mountain',
   // password: '',
-  // password: 'mountaindude55',
+  password: 'mountaindude55',
   // database: 'mountrip_dev',
 
   waitForConnections: true,

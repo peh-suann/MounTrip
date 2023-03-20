@@ -1,7 +1,8 @@
 /node_modules
 dev.env
 production.env
-.env
+*.env
+
 
 package-lock.json
 

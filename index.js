@@ -24,6 +24,9 @@ const db = require('./modules/db_connection')
 const { application, json } = require('express')
 const sessionStore = new MysqlStore({}, db) //一定要給的連線設定
 
+//設定'public'資料夾為靜態資料夾，輸入網址可以直接拜訪
+//而且不會被CORS擋下，因為這個拜訪不是AJAX
+app.use(express.static('public'));
 //頂層的中介處理 Top-level Middleware
 //cors 通行證 寫在後端
 const corsOptions = {
@@ -47,21 +50,6 @@ app.use(
     },
   })
 )
-//照片上傳 multer套件
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'images/uploads/')
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname)
-  },
-})
-const upload = multer({
-  storage: storage,
-  limits: { filesize: 2 * 1024 * 1024 },
-})
-
-
 
 //傳入資料解析為json格式
 app.use(express.json())
