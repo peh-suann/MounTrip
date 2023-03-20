@@ -106,6 +106,8 @@ app.use('/trails', require('./routes/trails-data'))
 app.use('/batch', require('./routes/batch-data'))
 
 app.use('/trails-filter', require('./routes/trails-filter'))
+
+
 //生成batch假資料用的頁面
 app.use('/data', require('./routes/get-random-data'))
 

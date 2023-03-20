@@ -2,6 +2,7 @@ const express = require('express')
 const db = require('../modules/db_connection')
 const router = express.Router()
 const moment = require('moment-timezone')
+// const { faker } = require('@faker-js/faker')
 
 // router.use((req, res, next) => {
 //   next()
@@ -144,8 +145,49 @@ const getRatingData = async (req, res) => {
   }
 }
 
+// async function changePrice() {
+//   let trails_price = 325
+//   if(trails_price === 325){
+//     function getRandomInt(max=300) {
+//       return Math.floor(Math.random() * Math.floor(max - 50) + 100);
+//     }
+//     trails_price = getRandomInt(trails_price)
+//   }
+
+//   const sqlUpdate = 'UPDATE `trails` SET `price`=?'
+//   const [result] = await db.query(sqlUpdate, [trails_price])
+//   console.log(trails_price)
+//   return trails_price
+// }
+
+async function changePrice() {
+  // Retrieve all trails with a price of 500 from the database
+  const sqlSelect = 'SELECT * FROM `trails` WHERE `price` = 325'
+  const [trails] = await db.query(sqlSelect)
+
+  // Generate new random prices for each trail
+  const updatedTrails = trails.map(trail => {
+    const newPrice = Math.floor(Math.random() * 251) + 300 
+    return { ...trail, price: newPrice }
+  })
+
+  // Update the prices in the database
+  const sqlUpdate = 'UPDATE `trails` SET `price` = ?'
+  const promises = updatedTrails.map(trail => db.query(sqlUpdate, [trail.price, trail.id]))
+  await Promise.all(promises)
+
+  console.log(`${trails.length} prices updated`)
+  return updatedTrails
+}
+
 router.get('/rating', async (req, res) => {
   const output = await getRatingData(req, res)
+  res.json(output)
+  // console.log(output)
+})
+
+router.get('/price', async (req, res) => {
+  const output = await changePrice(req, res)
   res.json(output)
   // console.log(output)
 })

@@ -82,14 +82,14 @@ const getAllData = async (req, res) => {
   const sql = `
   SELECT 
 
-  trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time, 
+  trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time, 
   trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid, 
   trails.coupon_status, trails.price, trails.trails_display, 
   trails.trail_length, trails.trail_height, trails.trail_gpx , 
 
   difficulty_list.difficulty_describ, difficulty_list.difficulty_short,
 
-  batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min, 
+  batch.sid, batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min, 
   batch.batch_max, batch.batch_sold, batch.batch_switch, batch.season_coupon
 
   FROM trails 
