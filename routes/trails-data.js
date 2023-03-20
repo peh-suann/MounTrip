@@ -34,31 +34,6 @@ const getListData = async (req, res) => {
       redirect = req.baseUrl + `?page=` + totalPages
     }
 
-    // const sql = `
-    // SELECT
-
-    // trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time,
-    // trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid,
-    // trails.coupon_status, trails.price, trails.trails_display,
-    // trails.trail_length, trails.trail_height, trails.trail_gpx ,
-
-    // difficulty_list.difficulty_describ, difficulty_list.difficulty_short,
-
-    // batch.sid,batch.trail_sid, batch.price, batch.batch_end, batch.batch_min,
-    // batch.batch_max, batch.batch_sold, batch.batch_switch, batch.season_coupon
-
-    // FROM trails
-
-    // JOIN difficulty_list
-    // ON trails.difficulty_list_sid=difficulty_list.sid
-
-    // JOIN batch
-    // ON trails.sid=batch.trail_sid
-
-    // ORDER BY trails.sid
-    // LIMIT ${(page - 1) * perPage}, ${perPage}
-    // `
-
     const sql = `
     SELECT 
   
@@ -84,7 +59,45 @@ const getListData = async (req, res) => {
     LIMIT ${(page - 1) * perPage}, ${perPage}
     `
 
-    // return res.send(sql); // SQL 除錯方式之一
+    // 包含評論，but 不適用slice
+  //   const sql = `
+  //   SELECT 
+  
+  //   trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time, 
+  //   trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid, 
+  //   trails.coupon_status, trails.price, trails.trails_display, 
+  //   trails.trail_length, trails.trail_height, trails.trail_gpx , 
+  
+  //   difficulty_list.difficulty_describ, difficulty_list.difficulty_short,
+  
+  //   batch.sid,batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min, 
+  //   batch.batch_max, batch.batch_sold, batch.batch_switch, batch.season_coupon,
+
+  //   rating.sid, rating.person, rating.member_sid, rating.trails_sid, rating.score, 
+  //   rating.rate_date, rating.comment, rating.reply,
+
+  //   member.firstname, member.lastname
+
+  
+  //   FROM trails 
+  
+  //   JOIN difficulty_list
+  //   ON trails.difficulty_list_sid=difficulty_list.sid
+    
+  //   LEFT JOIN batch 
+  //   ON trails.sid=batch.trail_sid
+
+  //   LEFT JOIN rating
+  //   ON trails.sid=rating.trails_sid
+
+  //   LEFT JOIN member
+  //   on member.sid=rating.member_sid
+
+  //   ORDER BY trails.sid 
+  //   LIMIT ${(page - 1) * perPage}, ${perPage}
+  //   `
+
+  //   // return res.send(sql); // SQL 除錯方式之一
     ;[rows] = await db.query(sql)
   }
 
@@ -92,6 +105,7 @@ const getListData = async (req, res) => {
   rows.forEach((v) => {
     v.batch_start = moment(v.batch_start).format(fm)
     v.batch_end = moment(v.batch_end).format(fm)
+    // v.rate_date = moment(v.rate_date).format(fm)
   })
 
   return {
@@ -103,6 +117,7 @@ const getListData = async (req, res) => {
     redirect,
   }
 }
+
 // getRatingData
 
 // const sql = `
