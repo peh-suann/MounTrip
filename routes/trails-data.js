@@ -44,7 +44,7 @@ const getListData = async (req, res) => {
 
     // difficulty_list.difficulty_describ, difficulty_list.difficulty_short,
 
-    // batch.sid,batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min,
+    // batch.sid,batch.trail_sid, batch.price, batch.batch_end, batch.batch_min,
     // batch.batch_max, batch.batch_sold, batch.batch_switch, batch.season_coupon
 
     // FROM trails
@@ -103,28 +103,53 @@ const getListData = async (req, res) => {
     redirect,
   }
 }
+// getRatingData
+
+// const sql = `
+// SELECT 
+// rating.sid, rating.person, rating.member_sid, rating.trails_sid, rating.score, 
+// rating.rate_date, rating.comment, rating.reply,
+
+// trails.sid,
+
+// member.firstname, member.lastname,
+
+// batch.sid
+
+// FROM trails
+
+// JOIN rating
+// on rating.trails_sid=trails.sid
+
+// JOIN member
+// on member.sid=rating.member_sid
+
+// JOIN batch
+// on batch.sid=rating.batch_sid
+
+// WHERE trails.sid=6
+// `
 
 const getRatingData = async (req, res) => {
   let rows = []
   // 用別名的方式修改
   const sql = `
-    SELECT 
-    rating.sid, rating.person, rating.member_sid, rating.trails_sid, rating.score, 
-    rating.rate_date, rating.comment, rating.reply,
-    
-    trails.sid,
+  SELECT 
+  rating.sid, rating.person, rating.member_sid, rating.trails_sid, rating.score, 
+  rating.rate_date, rating.comment, rating.reply,
+  
+  member.firstname, member.lastname,
 
-    member.firstname, member.lastname
-    
-    FROM trails
+  batch.sid
+  
+  FROM rating
 
-    JOIN rating
-    on rating.trails_sid=trails.sid
+  JOIN member
+  on member.sid=rating.member_sid
 
-    JOIN member
-    on member.sid=rating.member_sid
+  JOIN batch
+  on batch.sid=rating.batch_sid
 
-    WHERE trails.sid=6
     `
 
   // return res.send(sql); // SQL 除錯方式之一
@@ -146,39 +171,21 @@ const getRatingData = async (req, res) => {
 }
 
 // async function changePrice() {
-//   let trails_price = 325
-//   if(trails_price === 325){
-//     function getRandomInt(max=300) {
-//       return Math.floor(Math.random() * Math.floor(max - 50) + 100);
-//     }
-//     trails_price = getRandomInt(trails_price)
+//   let price 
+//   // if(price === 500){
+//   function getRandomInt(max = 300) {
+//     return Math.floor(Math.random() * Math.floor(max - 50) + 500)
 //   }
+//   price = getRandomInt(price)
+//   // }
 
-//   const sqlUpdate = 'UPDATE `trails` SET `price`=?'
-//   const [result] = await db.query(sqlUpdate, [trails_price])
-//   console.log(trails_price)
-//   return trails_price
+//   const sqlUpdate =
+//     'UPDATE `trails` SET `price`=? WHERE `sid` = 3||`sid` = 4|| `sid` = 5|| `sid` = 6|| `sid` = 7'
+//   const [result] = await db.query(sqlUpdate, price)
+//   console.log([result])
+//   return [result]
 // }
 
-async function changePrice() {
-  // Retrieve all trails with a price of 500 from the database
-  const sqlSelect = 'SELECT * FROM `trails` WHERE `price` = 325'
-  const [trails] = await db.query(sqlSelect)
-
-  // Generate new random prices for each trail
-  const updatedTrails = trails.map(trail => {
-    const newPrice = Math.floor(Math.random() * 251) + 300 
-    return { ...trail, price: newPrice }
-  })
-
-  // Update the prices in the database
-  const sqlUpdate = 'UPDATE `trails` SET `price` = ?'
-  const promises = updatedTrails.map(trail => db.query(sqlUpdate, [trail.price, trail.id]))
-  await Promise.all(promises)
-
-  console.log(`${trails.length} prices updated`)
-  return updatedTrails
-}
 
 router.get('/rating', async (req, res) => {
   const output = await getRatingData(req, res)
@@ -186,11 +193,11 @@ router.get('/rating', async (req, res) => {
   // console.log(output)
 })
 
-router.get('/price', async (req, res) => {
-  const output = await changePrice(req, res)
-  res.json(output)
-  // console.log(output)
-})
+// router.get('/price', async (req, res) => {
+//   const output = await changePrice(req, res)
+//   res.json(output)
+//   // console.log(output)
+// })
 
 router.get('/', async (req, res) => {
   const output = await getListData(req, res)
