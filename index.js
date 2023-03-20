@@ -230,6 +230,7 @@ app.post('/signin', async (req, res) => {
 //   // });
 // });
 app.use('/select_products', require('./routes/kexin_select_county_products'))
+app.use('/select_product_detail', require('./routes/kexin_select_product_detail'))
 
 
 //測試新的路由
