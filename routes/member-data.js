@@ -77,8 +77,8 @@ function authenticateToken(req, res, next) {
 //可以抓到訂單細節資訊＋訂單內涵商品資訊細節的函式
 const getUserOrder = async (req, res, oid) => {
   //FIXME
-  // const sql = `SELECT trails.trail_name, trails.trail_img, trails.trail_short_describ, trails.price, batch.batch_start, batch.batch_end, order_detail.amount FROM order_detail JOIN batch ON order_detail.batch_sid = batch.sid JOIN trails ON batch.trail_sid = trails.sid WHERE order_detail.order_sid =? `
-  const sql = `SELECT * FROM order_detail WHERE order_detail.order_sid=? `
+  const sql = `SELECT trails.trail_name, trails.trail_img, trails.trail_short_describ, trails.price, batch.batch_start, batch.batch_end, order_detail.amount FROM order_detail JOIN batch ON order_detail.batch_sid = batch.sid JOIN trails ON batch.trail_sid = trails.sid WHERE order_detail.order_sid =?`
+  // const sql = `SELECT * FROM order_detail WHERE order_detail.order_sid=? `
   const [rows] = await db.query(sql, oid)
   console.log(rows)
   return rows
@@ -95,7 +95,6 @@ router.get('/me/order', authenticateToken, async (req, res) => {
   const sid = req.headers['sid']
 
   const rowsOrder = await getOrder(req, res, sid)
-
 
   // 訂單比數資料日期格式轉換
   const convertedRowsOrder = rowsOrder.map((v, i) => {
@@ -135,8 +134,9 @@ router.get('/me/order', authenticateToken, async (req, res) => {
 //抓商品細節用的路由，用在HistoryProduct Component
 router.get('/me/order/product-detail', authenticateToken, async (req, res) => {
   const sid = req.headers['sid']
-  const orderId = req.headers['orderId']
-  const rows = await getUserOrder(req, res, orderId)
+  //要抓headers的資料時，id/host全部小寫！！
+  const ID = req.headers['id']
+  const rows = await getUserOrder(req, res, ID)
 
   //  細節資料進行日期格式、訂單號碼格式轉換
   const convertedRows = rows.map((v, i) => {
@@ -168,16 +168,24 @@ router.get('/me/order/product-detail', authenticateToken, async (req, res) => {
   let output = {
     data: convertedRows,
     msg: '',
+    sid: sid,
+    id: ID,
   }
   if (rows) {
     output = {
       data: convertedRows,
       msg: 'success',
+      sid: sid,
+      id: ID,
+
     }
   } else {
     output = {
       data: convertedRows,
       msg: 'failed',
+      sid: sid,
+      id: ID,
+
     }
   }
   console.log(output)
