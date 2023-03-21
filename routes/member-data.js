@@ -177,7 +177,6 @@ router.get('/me/order/product-detail', authenticateToken, async (req, res) => {
       msg: 'success',
       sid: sid,
       id: ID,
-
     }
   } else {
     output = {
@@ -185,7 +184,6 @@ router.get('/me/order/product-detail', authenticateToken, async (req, res) => {
       msg: 'failed',
       sid: sid,
       id: ID,
-
     }
   }
   console.log(output)
@@ -316,17 +314,47 @@ router.get('/me/:mid', authenticateToken, async (req, res) => {
   const sql = `SELECT * FROM member 
   WHERE sid=?`
   const [rows] = await db.query(sql, [req.params.mid])
-  // const avatarFileName = rows[0].img
-
-  // const imgOutput = Buffer.from(avatarFileName).toString('base64')
-  // console.log('blobname', avatarFileName)
+  const bdConvert = new Date(rows[0].birthday)
+  const year = bdConvert.getFullYear()
+  const month = String(bdConvert.getMonth() + 1).padStart(2, '0')
+  const day = String(bdConvert.getDate()).padStart(2, '0')
+  const bdFormat = `${year}-${month}-${day}`
+  const convertedRows = { ...rows[0], bdFormat: bdFormat }
   if (rows && rows.length) {
-    res.json(rows[0])
+    res.json(convertedRows)
+    // res.json(rows[0])
     // res.send({ imgOutput })
   } else {
     res.json({ msg: 'no data' })
   }
 })
+router.post(
+  '/me/:mid/update',
+  authenticateToken,
+  upload.none(), //multer套件，表示不需要處理檔案files
+  async (req, res) => {
+    if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
+    console.log('req.body:',req.body)
+    const sql = `UPDATE member SET firstname=?,lastname=?, gender=?, birthday=?, personal_id=?, mobile=?, account=?, email=?, zip=?, city=?, address=? WHERE sid =? `
+    const [rows] = await db.query(sql, [
+      req.body.firstname,
+      req.body.lastname,
+      req.body.gender,
+      req.body.birthday,
+      req.body.personalId,
+      req.body.mobile,
+      req.body.account,
+      req.body.email,
+      req.body.zip,
+      req.body.city,
+      req.body.address,
+      req.params.mid,
+    ])
+    res.status(200).send('上傳成功')
+  }
+  //TODO上傳驗證
+ 
+)
 
 router.get('/api', async (req, res) => {
   res.json(await getListData(req, res))
