@@ -26,7 +26,7 @@ const sessionStore = new MysqlStore({}, db) //一定要給的連線設定
 
 //設定'public'資料夾為靜態資料夾，輸入網址可以直接拜訪
 //而且不會被CORS擋下，因為這個拜訪不是AJAX
-app.use(express.static('public'));
+app.use(express.static('public'))
 //頂層的中介處理 Top-level Middleware
 //cors 通行證 寫在後端
 const corsOptions = {
@@ -95,7 +95,6 @@ app.use('/batch', require('./routes/batch-data'))
 
 app.use('/trails-filter', require('./routes/trails-filter'))
 
-
 //生成batch假資料用的頁面
 app.use('/data', require('./routes/get-random-data'))
 
@@ -133,7 +132,7 @@ app.post('/login', async (req, res) => {
     output.code = 401
     return res.json(output)
   }
-  
+
   let passwordCorrect = false // 預設密碼是錯的
   try {
     passwordCorrect = await bcrypt.compare(req.body.password, rows[0].password)
