@@ -1,8 +1,9 @@
-const { faker } = require('@faker-js/faker')
+
 const express = require('express')
 const moment = require('moment')
 const db = require('../modules/db_connection')
 const router = express.Router()
+const { faker } = require('@faker-js/faker')
 
 router.use((req, res, next) => {
   next()
