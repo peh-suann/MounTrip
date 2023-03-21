@@ -8,11 +8,13 @@ const router = express.Router()
 // })
 
 const getListData = async (req, res) => {
-  let sid = req.query.sid || 1;
-  console.log(sid);
-  const sql =
-    `SELECT trails.trail_name, trails.geo_location_sid, trails.geo_location_town_sid, trails.price, trails.sid, trails.trail_img, trails.trail_describ, trails.trail_time, trails.trail_length, trails.trail_height, trails.lon, trails.lat, difficulty_list.difficulty_short FROM trails JOIN difficulty_list ON trails.difficulty_list_sid = difficulty_list.sid WHERE trails.sid=${sid}`
+  let sid = req.query.sid || 1
+  console.log(sid)
+  const sql = `SELECT rating.trails_sid, rating.score, rating.comment, rating.rate_date, 
+    rating.rating_img, member.firstname, member.lastname, member.img, member.level 
+    FROM rating JOIN member ON rating.member_sid=member.sid WHERE rating.trails_sid=${sid}`
 
+  console.log(sql)
   const rows = await db.query(sql)
   //   console.log('rows', rows)
   return rows[0]

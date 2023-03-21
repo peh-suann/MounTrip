@@ -16,6 +16,7 @@ const moment = require('moment-timezone')
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const { sendMagicLinkEmail } =require("./mailer")
 const app = express()
 
 //DB連接
@@ -35,15 +36,17 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 // top-level middlewares
-app.use(session({
-  saveUninitialized: false,
-  resave: false,
-  secret: 'jdkfksd8934-@_75634kjdkjfdkssdfg',
-  store: sessionStore,
-  cookie: {
-    // maxAge: 1200_000
-  }
-}));
+app.use(
+  session({
+    saveUninitialized: false,
+    resave: false,
+    secret: 'jdkfksd8934-@_75634kjdkjfdkssdfg',
+    store: sessionStore,
+    cookie: {
+      // maxAge: 1200_000
+    },
+  })
+)
 
 app.use(cors(corsOptions))
 
@@ -133,7 +136,6 @@ app.post('/login', async (req, res) => {
     passwordCorrect = await bcrypt.compare(req.body.password, rows[0].password)
   } catch (ex) {}
 
-
   if (!passwordCorrect) {
     // 密碼是錯的
     output.code = 402
@@ -145,16 +147,19 @@ app.post('/login', async (req, res) => {
     req.session.member = {
       sid: rows[0].sid,
       account: rows[0].account,
-    }    
-    output.token = jwt.sign({
-      sid: rows[0].sid,
-      account: rows[0].account,
-    }, process.env.JWT_SECRET);
-    output.accountId = rows[0].sid;
-    output.account = rows[0].account;
+    }
+    output.token = jwt.sign(
+      {
+        sid: rows[0].sid,
+        account: rows[0].account,
+      },
+      process.env.JWT_SECRET
+    )
+    output.accountId = rows[0].sid
+    output.account = rows[0].account
   }
-  res.json(output);
-});
+  res.json(output)
+})
 
 //signin的路由
 app.post('/signin', async (req, res) => {
@@ -171,10 +176,9 @@ app.post('/signin', async (req, res) => {
   const sql =
     "INSERT INTO `member`( `account`, `password`, `display`) VALUES (?,?,'1')"
 
-
   // console.log(bcrypt.hash(req.body.password))
-  const hash = bcrypt.hashSync(req.body.password, 10);
-  console.log(hash);
+  const hash = bcrypt.hashSync(req.body.password, 10)
+  console.log(hash)
   const [rows] = await db.query(sql, [req.body.account, hash])
   // console.log(rows)
   // console.log(rows.insertId)
@@ -185,7 +189,7 @@ app.post('/signin', async (req, res) => {
     return res.json(output)
   }
 
-  if (req.body.password===req.body.password1) {
+  if (req.body.password === req.body.password1) {
     output.success = true
     output.code = 200
     output.error = ''
@@ -207,31 +211,39 @@ app.post('/signin', async (req, res) => {
   res.json(output)
 })
 
-// kexin 首頁縣市搜尋行程
-// app.get('/search', (req, res) => {
-//   // const { query } = req.query;
-//   console.log(req.body);
-//   // const sql = `
-//   //   SELECT COUNT(*) AS count, trails.trail_name, trails.geo_location_sid, trails.geo_location_town_sid, trails.price, trails.sid AS trails_sid, trails.trail_img
-//   //   FROM order_detail
-//   //   JOIN trails ON order_detail.trails_sid = trails.sid
-//   //   WHERE trails.sid IS NOT NULL AND trails.sid <> '' AND trails.geo_location_sid = ?
-//   //   GROUP BY order_detail.trails_sid
-//   //   ORDER BY count DESC
-//   //   LIMIT 6
-//   // `;
-//   // connection.query(sql, [query], (error, results) => {
-//   //   if (error) {
-//   //     console.error(error);
-//   //     res.status(500).send('Internal server error');
-//   //   } else {
-//   //     res.json(results);
-//   //   }
-//   // });
-// });
-app.use('/select_products', require('./routes/kexin_select_county_products'))
-app.use('/select_product_detail', require('./routes/kexin_select_product_detail'))
+// kexin 忘記密碼
 
+
+// const users =[{
+//   id:1,
+//   name:'kexin',
+//   email: "lu773414@gmail.com"
+// }]
+
+// app.post("/resetPassword", async (req,res) => {
+//   console.log(req.body.email)
+//   const user=users.find(u => u.email === req.body.email)
+
+//   console.log('user',user)
+//   if (user != null) {
+//     try {
+//       const token = jwt.sign({userId : user.id}, process.env.JWT_SECRET,{
+//         expiresIn: "1h",
+//       })
+//       console.log(token)
+//       await sendMagicLinkEmail({email:user.email,token})
+//     } catch (e) {
+//       return res.send("Error RESET PASSWORD")
+//     }
+
+//     res.send("success")
+//   }
+// })
+
+// kexin 首頁路由
+app.use('/select_products', require('./routes/kexin_select_county_products'))
+app.use('/select_comment', require('./routes/kexin_select_comment'))
+app.use('/select_batch', require('./routes/kexin_select_batch'))
 
 //測試新的路由
 // app.use('/test', require('./routes/test'))

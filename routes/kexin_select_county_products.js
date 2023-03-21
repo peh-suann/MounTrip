@@ -14,7 +14,14 @@ const getListData = async (req, res) => {
 
   console.log(county, keyword);
   const sql =
-    `SELECT trails.trail_name, trails.geo_location_sid, trails.geo_location_town_sid, trails.price, trails.sid, trails.trail_img, trails.trail_describ, trails.trail_time, trails.trail_length, trails.trail_height,trails.lon, trails.lat, difficulty_list.difficulty_short FROM trails JOIN difficulty_list ON trails.difficulty_list_sid = difficulty_list.sid  WHERE trails.geo_location_sid='${county}' AND trails.trail_describ LIKE '%${keyword}%' AND trails.trail_name LIKE '%${keyword}%' LIMIT 7`
+    `SELECT trails.trail_name, trails.geo_location_sid, trails.geo_location_town_sid, 
+    trails.price, trails.sid, trails.trail_img, trails.trail_describ, trails.trail_time, 
+    trails.trail_length, trails.trail_height,trails.lon, trails.lat, 
+    difficulty_list.difficulty_short, ( SELECT AVG(rating.score) FROM rating 
+    WHERE rating.trails_sid = trails.sid ) as avg_score FROM trails 
+    JOIN difficulty_list ON trails.difficulty_list_sid = difficulty_list.sid  
+    WHERE trails.geo_location_sid='${county}' AND trails.trail_describ 
+    LIKE '%${keyword}%' AND trails.trail_name LIKE '%${keyword}%' LIMIT 7`
 
   const rows = await db.query(sql)
   //   console.log('rows', rows)

@@ -27,7 +27,7 @@ const pool = mysql.createPool({
   // password: '',
   // password: 'mountaindude55',
   // database: 'mountrip_dev',
-  database: 'mountain',
+  database: 'mountrip',
 
   waitForConnections: true,
   connectionLimit: 5, //最多五人同時連線
