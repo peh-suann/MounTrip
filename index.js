@@ -84,7 +84,7 @@ app.get('/try-db', async (req, res) => {
   res.json([rows])
 })
 
-app.use('/', require('./routes/Ian.js'))
+// app.use('/', require('./routes/Ian.js'))
 app.use('/member', require('./routes/member-data'))
 
 // app.use('/trails',require('./routes/member-data'))
@@ -219,6 +219,7 @@ app.post('/signin', async (req, res) => {
 // app.use('/test', require('./routes/test'))
 
 // --yichun fetch products data
+app.use('/search', require('./routes/yichun_search_products'))
 app.use('/products', require('./routes/yichun_all_products'))
 app.use('/products_popular', require('./routes/yichun_popular_products'))
 app.use('/products_sunrise', require('./routes/yichun_popular_sunrise'))
@@ -226,8 +227,10 @@ app.use('/products_holiday', require('./routes/yichun_popular_holiday'))
 app.use('/products_flowers', require('./routes/yichun_popular_flowers'))
 app.use('/products_hotspring', require('./routes/yichun_theme_hotspring'))
 app.use('/products_location', require('./routes/yichun_popular_locations'))
+app.use('/weather_location', require('./routes/yichun_weather_location'))
 app.use('/test', require('./routes/yichun_test'))
 app.use('/answer', require('./routes/yichun_answer'))
+app.use('/rating_data', require('./routes/rating_datas'))
 
 app.get('/insert-random-numbers', async (req, res) => {
   try {
