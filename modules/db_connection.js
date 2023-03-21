@@ -11,13 +11,13 @@ const pool = mysql.createPool({
   // user: 'mountain',
   // password: 'mountaindude55',
 
-  // host: 'localhost',
   host: '192.168.21.84',
-  // user: 'root',
   user: 'mountain',
-  // password: '',
   password: 'mountaindude55',
   database: 'mountain',
+  // host: 'localhost',
+  // user: 'root',
+  // password: '',
   // database: 'mountrip_dev',
 
   waitForConnections: true,
