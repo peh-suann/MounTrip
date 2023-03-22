@@ -334,7 +334,7 @@ router.post(
   upload.none(), //multer套件，表示不需要處理檔案files
   async (req, res) => {
     if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
-    console.log('req.body:',req.body)
+    console.log('req.body:', req.body)
     const sql = `UPDATE member SET firstname=?,lastname=?, gender=?, birthday=?, personal_id=?, mobile=?, account=?, email=?, zip=?, city=?, address=? WHERE sid =? `
     const [rows] = await db.query(sql, [
       req.body.firstname,
@@ -353,7 +353,6 @@ router.post(
     res.status(200).send('上傳成功')
   }
   //TODO上傳驗證
- 
 )
 
 router.get('/api', async (req, res) => {
