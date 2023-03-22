@@ -89,12 +89,59 @@ const getOrder = async (req, res, sid) => {
   const [rows] = await db.query(sql, sid)
   return rows
 }
+//抓有成功付款的函式
+const getOrderSuccess = async (req, res, sid) => {
+  const sql = `SELECT order_list.sid, order_list.order_date, order_list.member_sid, order_list.order_status_sid, order_list.total FROM order_list JOIN order_status ON order_list.order_status_sid = order_status.sid WHERE order_list.member_sid=? && order_status.sid = 2 `
+  const [rows] = await db.query(sql, sid)
+  return rows
+}
 //  抓訂單比數資料的路由，用在HistoryOrderCard Component上
 router.get('/me/order', authenticateToken, async (req, res) => {
   // if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
   const sid = req.headers['sid']
 
   const rowsOrder = await getOrder(req, res, sid)
+
+  // 訂單比數資料日期格式轉換
+  const convertedRowsOrder = rowsOrder.map((v, i) => {
+    const date = new Date(v.order_date)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const orderDateFormat = `${year}/${month}/${day}`
+    return {
+      ...v,
+      orderDateFormat: orderDateFormat,
+    }
+  })
+
+  let output = {
+    orderSidData: convertedRowsOrder,
+    // data: convertedRows,
+    msg: '',
+  }
+  if (rowsOrder) {
+    output = {
+      orderSidData: convertedRowsOrder,
+      // data: convertedRows,
+      msg: 'success',
+    }
+  } else {
+    output = {
+      orderSidData: convertedRowsOrder,
+      // data: convertedRows,
+      msg: 'failed',
+    }
+  }
+  // console.log(convertedRowsOrder)
+  res.json(output)
+})
+//  為了progressbar抓已付款成功的訂單總價資料
+router.get('/me/order/success', authenticateToken, async (req, res) => {
+  // if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
+  const sid = req.headers['sid']
+
+  const rowsOrder = await getOrderSuccess(req, res, sid)
 
   // 訂單比數資料日期格式轉換
   const convertedRowsOrder = rowsOrder.map((v, i) => {
