@@ -1,7 +1,22 @@
 const express = require('express')
 const db = require('../modules/db_connection')
-
+const jwt = require('jsonwebtoken')
 const router = express.Router()
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+  if (!token) return res.sendStatus(402)
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403) //有看到token但帳號密碼不正確
+    req.user = user
+    next()
+  })
+}
+
+router.use((req, res, next) => {
+  next()
+})
 
 const getdifficultyDataHard = async (req, res) => {
   let Rows = []
@@ -59,14 +74,25 @@ const getSeasonComment = async (req, res) => {
   return { rows }
 }
 
-const getSCData = async (req, res) => {
-  let Rows = []
-  Rows = await db.query(
-    'SELECT trails.trail_name,trails.trail_img,trails.price,batch.batch_start,batch.batch_end FROM trails JOIN batch ON trails.sid=batch.trail_sid WHERE batch.trail_sid=160 OR batch.trail_sid=26'
-  )
-  const rows = Rows[0]
+// const getSCData = async (req, res) => {
+//   let Rows = []
+//   Rows = await db.query(
+//     'SELECT trails.trail_name,trails.trail_img,trails.price,batch.batch_start,batch.batch_end FROM trails JOIN batch ON trails.sid=batch.trail_sid WHERE batch.trail_sid=160 OR batch.trail_sid=26'
+//   )
+//   const rows = Rows[0]
+//   return { rows }
+// }
+
+const getCouponData = async (req, res,sid) => {
+  let Row = []
+  const sql =
+  'SELECT coupon.sid AS coupon_sid, coupon_code, coupon_name, start_date_coup, end_date_coup, promo_name, coupon_status,min_purchase FROM coupon JOIN member_coupon ON member_coupon.coupon_sid = coupon.sid WHERE member_coupon.member_sid =1 AND coupon.coupon_status=1 ORDER BY coupon.sid ASC'
+const Rows = await db.query(sql, sid)
+const rows = Rows[0]
   return { rows }
 }
+
+
 
 // router.get('/difficulty', async (req, res) => {
 //   let data = []
@@ -110,8 +136,9 @@ router.get('/seasonComment', async (req, res) => {
   // console.log(output)
 })
 
-router.get('/sc1', async (req, res) => {
-  const data = await getSCData(req, res)
+router.get('/SC1', async (req, res) => {
+  const sid = req.headers['sid']
+  const data = await getCouponData(req, res, sid)
   res.json(data)
 })
 
