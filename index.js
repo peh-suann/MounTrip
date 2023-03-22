@@ -17,7 +17,7 @@ const cors = require('cors')
 const multer = require('multer')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const { sendMagicLinkEmail } =require("./mailer")
+const { sendMagicLinkEmail } = require("./mailer")
 const app = express()
 
 //DB連接
@@ -216,34 +216,53 @@ app.post('/signin', async (req, res) => {
   res.json(output)
 })
 
-// kexin 忘記密碼
+// kexin 忘記密碼寄信
+const users =[{
+  id:1,
+  name:'kexin',
+  email: "lu773414@gmail.com"
+}]
 
+app.post("/resetPassword", async (req,res) => {
+  console.log(req.body.email)
+  const user=users.find(u => u.email === req.body.email)
 
-// const users =[{
-//   id:1,
-//   name:'kexin',
-//   email: "lu773414@gmail.com"
-// }]
+  console.log('user',user)
+  if (user != null) {
+    try {
+      const token = jwt.sign({userId : user.id}, process.env.JWT_SECRET,{
+        expiresIn: "1h",
+      })
+      console.log(token)
+      await sendMagicLinkEmail({email:user.email,token})
+    } catch (e) {
+      return res.send("Error RESET PASSWORD")
+    }
 
-// app.post("/resetPassword", async (req,res) => {
-//   console.log(req.body.email)
-//   const user=users.find(u => u.email === req.body.email)
+    res.send("success")
+  }
+})
 
-//   console.log('user',user)
-//   if (user != null) {
-//     try {
-//       const token = jwt.sign({userId : user.id}, process.env.JWT_SECRET,{
-//         expiresIn: "1h",
-//       })
-//       console.log(token)
-//       await sendMagicLinkEmail({email:user.email,token})
-//     } catch (e) {
-//       return res.send("Error RESET PASSWORD")
-//     }
+// kexin 忘記密碼路由驗證
+app.get('/vertify', (req,res) => {
+  const token = req.query.token
+  console.log(token)
+  if (token == null) return res.sendStatus(401)
 
-//     res.send("success")
-//   }
-// })
+  try {
+    console.log(jwt.verify(token, process.env.JWT_SECRET))
+    const decodeToken = jwt.verify(token, process.env.JWT_SECRET)
+    console.log(decodeToken)
+    const user = users.find(u => u.id === decodeToken.userId)
+    res.send(`${user.name}`)
+    // res.redirect='http:localhost:3000/password'
+  } catch (e) {
+    res.sendStatus(401)
+    // res.send('fail')
+  }
+  
+})
+
 
 // kexin 首頁路由
 app.use('/select_products', require('./routes/kexin_select_county_products'))

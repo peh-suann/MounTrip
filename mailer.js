@@ -1,33 +1,50 @@
 //引用 nodemailer
-var nodemailer = require('nodemailer');
+var nodemailer = require('nodemailer')
 
-//宣告發信物件
-var transporter = nodemailer.createTransport({
+function sendMagicLinkEmail({ email, token }) {
+  //宣告發信物件
+  var transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-        user: '',
-        pass: ''
-    }
-});
+      user: process.env.E_USER,
+      pass: process.env.E_PASS,
+    },
+  })
 
-var options = {
+  var options = {
     //寄件者
-    from: '',
+    from: process.env.E_USER,
     //收件者
-    to: '', 
+    to: email,
     //主旨
-    subject: '這是 node.js 發送的測試信件', // Subject line
-    //純文字
-    text: 'Hello world2', // plaintext body
+    subject: 'Reset Your Password', // Subject line
     //嵌入 html 的內文
-    html: '<h2>HELLOW</h2> <p>The <a href="http://en.wikipedia.org/wiki/Lorem_ipsum" title="Lorem ipsum - Wikipedia, the free encyclopedia">Lorem ipsum</a> text is typically composed of pseudo-Latin words. It is commonly used as placeholder text to examine or demonstrate the visual effects of various graphic design. Since the text itself is meaningless, the viewers are therefore able to focus on the overall layout without being attracted to the text.</p>', 
-};
+    html: `<a href="http://localhost:3000/reset?token=${token}">Click Here</a>`,
 
-//發送信件方法
-transporter.sendMail(options, function(error, info){
-    if(error){
-        console.log(error);
-    }else{
-        console.log('訊息發送: ' + info.response);
+    // TODO: 從前端get token 傳到後端驗證, 成功後再修改密碼
+  }
+
+  //發送信件方法
+
+  transporter.sendMail(options, function (error, info) {
+    if (error) {
+      console.log(error)
+    } else {
+      console.log('訊息發送: ' + info.response)
     }
-});
+  })
+}
+
+// function sendMagicLinkEmail({email, token}) {
+
+//     nodemailer().sendMail({
+//         to: email,
+//         from: process.env.FROM_EMAIL,
+//         subject: "Reset Your Password",
+//         html: `<a href="http:/localhost:3000/verify?token=${token}">Click Here</a>`,
+//     })
+// }
+
+module.exports = {
+  sendMagicLinkEmail,
+}
