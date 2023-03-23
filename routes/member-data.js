@@ -435,6 +435,7 @@ router.get('/me/:mid', authenticateToken, async (req, res) => {
     res.json({ msg: 'no data' })
   }
 })
+
 router.post(
   '/me/:mid/update',
   authenticateToken,
