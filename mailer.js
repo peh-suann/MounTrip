@@ -19,7 +19,7 @@ function sendMagicLinkEmail({ email, token }) {
     //主旨
     subject: 'Reset Your Password', // Subject line
     //嵌入 html 的內文
-    html: `<a href="http://localhost:3000/reset?token=${token}">Click Here</a>`,
+    html: `<a href="http://localhost:3000/password?token=${token}">Click Here</a>`,
 
     // TODO: 從前端get token 傳到後端驗證, 成功後再修改密碼
   }

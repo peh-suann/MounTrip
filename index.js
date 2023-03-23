@@ -244,21 +244,37 @@ app.post("/resetPassword", async (req,res) => {
 })
 
 // kexin 忘記密碼路由驗證
-app.get('/vertify', (req,res) => {
-  const token = req.query.token
-  console.log(token)
+app.post('/vertify', (req,res) => {
+
+  const output = {
+    success: false,
+    error: '未驗證成功 !!!',
+    code: 0,
+    postData: req.body,
+    token: '',
+  }
+
+  const token = req.body
+  // console.log(token)
   if (token == null) return res.sendStatus(401)
 
+
+  let tokenCorrect = false // 預設密碼是錯的
   try {
     console.log(jwt.verify(token, process.env.JWT_SECRET))
     const decodeToken = jwt.verify(token, process.env.JWT_SECRET)
     console.log(decodeToken)
     const user = users.find(u => u.id === decodeToken.userId)
+    if (user) {
+      tokenCorrect = true
+    }
     res.send(`${user.name}`)
     // res.redirect='http:localhost:3000/password'
+    output.success = true
+    output.code = 200
   } catch (e) {
     res.sendStatus(401)
-    // res.send('fail')
+
   }
   
 })
