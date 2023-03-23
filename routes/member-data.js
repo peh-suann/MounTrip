@@ -61,8 +61,23 @@ router.get('/', async (req, res) => {
 
 //驗證用的callback func
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization']
+  const authHeader =
+    req.headers['authorization'] 
   // console.log('authHeader', authHeader)
+  const token = authHeader && authHeader.split(' ')[1]
+  //check if thet token under 'BEARER' is valid
+  if (!token) return res.sendStatus(402)
+  //驗證（解碼）這個token
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403) //有看到token但帳號密碼不正確
+    req.user = user
+    next()
+  })
+}
+function authenticateToken2(req, res, next) {
+  const authHeader = req.body.Authorization
+  const testpayload = req.body.Authorization
+  console.log('payload', testpayload)
   const token = authHeader && authHeader.split(' ')[1]
   //check if thet token under 'BEARER' is valid
   if (!token) return res.sendStatus(402)
@@ -355,6 +370,51 @@ router.get('/me/coupon', authenticateToken, async (req, res) => {
   const output = await getUserCoupon(req, res, sid)
   res.json(output)
 })
+
+const getUserFavorite = async (req, res, sid) => {
+  const sql =
+    'SELECT favorite.member_sid, favorite.trails_sid, favorite.status, trails.trail_name, trails.trail_img, trails.trail_short_describ, trails.geo_location_sid, trails.geo_location_town_sid, trails.price FROM favorite JOIN trails ON favorite.trails_sid = trails.sid WHERE member_sid =?'
+  // const sql2 =
+  // 'SELECT favorite.member_sid, favorite.trails_sid, favorite.status, trails.trail_name, trails.trail_img, trails.trail_short_describ, trails.geo_location_sid, trails.geo_location_town_sid, trails.price,  ( SELECT AVG(rating.score) FROM rating WHERE rating.batch_sid = order_detail.batch_sid ) as avg_score  FROM favorite JOIN trails ON favorite.trails_sid = trails.sid JOIN batch ON batch.trail_sid = trails.sid JOIN order_detail ON order_detail.batch_sid = batch.sid WHERE member_sid =?'
+  const [rows] = await db.query(sql, sid)
+  console.log('userfav', rows)
+  return rows
+}
+const deleteUserFavorite = async (req, res, member_sid, trails_sid) => {
+  const sql = 'DELETE FROM favorite WHERE member_sid =? && trails_sid=?'
+  const [rows] = await db.query(sql, [member_sid, trails_sid])
+  console.log('delete', rows)
+  return rows
+}
+const addUserFavorite = async (req, res, member_sid, trails_sid) => {
+  const sql =
+    'INSERT INTO favorite(member_sid, trails_sid, status) VALUES (?,?,1)'
+  const [rows] = await db.query(sql, [member_sid, trails_sid])
+  console.log('req.payload', req.body)
+}
+router.get('/me/favorite', authenticateToken, async (req, res) => {
+  const sid = req.headers['sid']
+  const output = await getUserFavorite(req, res, sid)
+  // console.log('output', output)
+  res.json(output)
+})
+
+router.delete('/me/favorite/delete', authenticateToken, async (req, res) => {
+  const sid = req.headers['sid']
+  const trails_sid = req.headers['trails_sid']
+  const output = await deleteUserFavorite(req, res, sid, trails_sid)
+  // console.log('output', output)
+  // console.log('trails_sid', trails_sid)
+  res.json(output)
+})
+router.post('/me/favorite/add', authenticateToken2, async (req, res) => {
+  // const sid = req.headers['sid']
+  // const trails_sid = req.headers['trails_sid']
+  const sid = req.body['sid']
+  const trails_sid = req.body['trails_sid']
+  const output = await addUserFavorite(req, res, sid, trails_sid)
+  res.json(output)
+})
 //抓所有會員資料
 router.get('/me/:mid', authenticateToken, async (req, res) => {
   if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
@@ -381,7 +441,7 @@ router.post(
   upload.none(), //multer套件，表示不需要處理檔案files
   async (req, res) => {
     if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
-    console.log('req.body:',req.body)
+    console.log('req.body:', req.body)
     const sql = `UPDATE member SET firstname=?,lastname=?, gender=?, birthday=?, personal_id=?, mobile=?, account=?, email=?, zip=?, city=?, address=? WHERE sid =? `
     const [rows] = await db.query(sql, [
       req.body.firstname,
@@ -400,7 +460,6 @@ router.post(
     res.status(200).send('上傳成功')
   }
   //TODO上傳驗證
- 
 )
 
 router.get('/api', async (req, res) => {

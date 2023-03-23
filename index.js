@@ -87,7 +87,7 @@ app.get('/try-db', async (req, res) => {
   res.json([rows])
 })
 
-// app.use('/', require('./routes/Ian.js'))
+app.use('/', require('./routes/Ian.js'))
 app.use('/member', require('./routes/member-data'))
 
 // app.use('/trails',require('./routes/member-data'))

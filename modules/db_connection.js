@@ -18,7 +18,7 @@ const pool = mysql.createPool({
   // host: 'localhost',
   // user: 'root',
   // password: '',
-  // database: 'mountain',
+  // database: 'mountrip_dev',
 
   waitForConnections: true,
   connectionLimit: 5, //最多五人同時連線

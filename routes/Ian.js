@@ -54,7 +54,7 @@ const getdifficultyDataEasy = async (req, res) => {
 const getSeasonData = async (req, res) => {
   let Rows = []
   Rows = await db.query(
-    'SELECT rating.score,trails.trail_name,trails.trail_img,trails.geo_location_sid,trails.geo_location_town_sid,trails.price,difficulty_list.difficulty_short FROM trails INNER JOIN difficulty_list ON trails.difficulty_list_sid=difficulty_list.sid INNER JOIN rating ON rating.trails_sid=trails.sid ORDER BY RAND() LIMIT 9;'
+    'SELECT rating.score,trails.trail_name,trails.sid,trails.trail_img,trails.geo_location_sid,trails.geo_location_town_sid,trails.price,difficulty_list.difficulty_short FROM trails INNER JOIN difficulty_list ON trails.difficulty_list_sid=difficulty_list.sid INNER JOIN rating ON rating.trails_sid=trails.sid ORDER BY RAND() LIMIT 9;'
   )
   const rows = Rows[0]
   // res.json(rows)
@@ -83,16 +83,14 @@ const getSeasonComment = async (req, res) => {
 //   return { rows }
 // }
 
-const getCouponData = async (req, res,sid) => {
+const getCouponData = async (req, res, sid) => {
   let Row = []
   const sql =
-  'SELECT coupon.sid AS coupon_sid, coupon_code, coupon_name, start_date_coup, end_date_coup, promo_name, coupon_status,min_purchase FROM coupon JOIN member_coupon ON member_coupon.coupon_sid = coupon.sid WHERE member_coupon.member_sid =1 AND coupon.coupon_status=1 ORDER BY coupon.sid ASC'
-const Rows = await db.query(sql, sid)
-const rows = Rows[0]
+    'SELECT coupon.sid AS coupon_sid, coupon_code, coupon_name, start_date_coup, end_date_coup, promo_name, coupon_status,min_purchase FROM coupon JOIN member_coupon ON member_coupon.coupon_sid = coupon.sid WHERE member_coupon.member_sid =1 AND coupon.coupon_status=1 ORDER BY coupon.sid ASC'
+  const Rows = await db.query(sql, sid)
+  const rows = Rows[0]
   return { rows }
 }
-
-
 
 // router.get('/difficulty', async (req, res) => {
 //   let data = []
