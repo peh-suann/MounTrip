@@ -92,16 +92,18 @@ const getAllData = async (req, res) => {
   batch.sid, batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min, 
   batch.batch_max, batch.batch_sold, batch.batch_switch, batch.season_coupon
 
+  , COUNT(*) AS num_prods
+
   FROM trails 
 
-  JOIN difficulty_list
+  LEFT JOIN difficulty_list
   ON trails.difficulty_list_sid=difficulty_list.sid
 
-  JOIN batch 
+  LEFT JOIN batch 
   ON trails.sid=batch.trail_sid
 
 
-  ORDER BY trails.sid 
+  GROUP BY trails.sid 
 
   `
 
