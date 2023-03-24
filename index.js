@@ -218,7 +218,7 @@ app.post('/signin', async (req, res) => {
 // app.use('/test', require('./routes/test'))
 
 // --yichun fetch products data
-app.use('/search', require('./routes/yichun_search_products'))
+// app.use('/search', require('./routes/yichun_search_products'))
 app.use('/products', require('./routes/yichun_all_products'))
 app.use('/products_popular', require('./routes/yichun_popular_products'))
 app.use('/products_sunrise', require('./routes/yichun_popular_sunrise'))
@@ -228,31 +228,13 @@ app.use('/products_hotspring', require('./routes/yichun_theme_hotspring'))
 app.use('/products_location', require('./routes/yichun_popular_locations'))
 app.use('/weather_location', require('./routes/yichun_weather_location'))
 app.use('/test', require('./routes/yichun_test'))
+app.use('/test_play', require('./routes/yichun_test_play'))
+app.use('/insert_play', require('./routes/yichun_test_insert_play'))
+app.use('/insert_coupon', require('./routes/yichun_test_insert_coupon'))
 app.use('/answer', require('./routes/yichun_answer'))
 app.use('/rating_data', require('./routes/rating_datas'))
-
-app.get('/insert-random-numbers', async (req, res) => {
-  try {
-    // generate an array of 400 random numbers
-    const randomNumbers = []
-    for (let i = 0; i < 400; i++) {
-      randomNumbers.push(Math.floor(Math.random() * 400) + 1)
-    }
-
-    // insert the random numbers into a row
-    const query = `UPDATE order_detail SET batch_sid = FLOOR(1 + RAND() * 400) WHERE 1`
-    const result = await db.execute(query)
-
-    console.log(result)
-    // close the database connection
-
-    // send a response to the client
-    res.send('Random numbers inserted successfully!')
-  } catch (error) {
-    console.error(error)
-    res.status(500).send('An error occurred while inserting random numbers.')
-  }
-})
+// app.use('/insert_batch', require('./routes/yichun_insert_batch'))
+// app.use('/insert_order', require('./routes/yichun_insert_order'))
 
 //404頁面
 app.use((req, res) => {
