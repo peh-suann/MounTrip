@@ -61,8 +61,7 @@ router.get('/', async (req, res) => {
 
 //驗證用的callback func
 function authenticateToken(req, res, next) {
-  const authHeader =
-    req.headers['authorization'] 
+  const authHeader = req.headers['authorization']
   // console.log('authHeader', authHeader)
   const token = authHeader && authHeader.split(' ')[1]
   //check if thet token under 'BEARER' is valid
@@ -251,11 +250,41 @@ router.get('/me/order/product-detail', authenticateToken, async (req, res) => {
   console.log(output)
   res.json(output)
 })
+//會員等級升級
+async function getCurrentLevel(sid) {
+  const sql = `SELECT level FROM member WHERE sid =?`
+  const [rows] = await db.query(sql, sid)
+  // console.log('', rows)
+  return rows
+}
+async function setNewLevel(level, sid) {
+  const sql = `UPDATE member SET level= ${level} WHERE sid= ?`
+  const [rows] = await db.query(sql, sid)
+  return rows
+}
+router.post('/me/member-level/update', authenticateToken, async (req, res) => {
+  const sid = req.body['sid']
+  const trails_sid = req.body['trails_sid']
+  let updateLevel = 1
+  // const sql = `UPDATE member SET level=`
+
+  switch (getCurrentLevel(sid)) {
+    default:
+      return setNewLevel(1, sid)
+    case 1:
+      return setNewLevel(2, sid)
+    case 2:
+      return setNewLevel(3, sid)
+    case 3:
+      return setNewLevel(3, sid)
+  }
+})
 
 router.get('/me/comment/:mid', authenticateToken, async (req, res) => {
   if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
   const sql = `SELECT trails.trail_name, batch.batch_start, batch.batch_end, rating.score, rating.comment, rating.reply, order_list.sid FROM order_list JOIN rating ON order_list.member_sid = rating.member_sid JOIN order_detail ON order_detail.order_sid = order_list.sid JOIN batch ON batch.sid = order_detail.batch_sid JOIN trails ON trails.sid = rating.trails_sid WHERE rating.member_sid=? `
-  const sql2 = `SELECT * FROM rating JOIN trails ON rating.trails_sid = trails.sid JOIN order_list ON order_list.member_sid = rating.member_sid AND order_list.order_status_sid = 2 JOIN batch ON batch.sid = rating.batch_sid WHERE rating.member_sid =? `
+  const sql2 = `SELECT batch.batch_end, batch.batch_start, rating.batch_sid, rating.comment, rating.sid ,rating.reply, rating.score, rating.trails_sid, rating.member_sid, trails.geo_location_sid, trails.geo_location_town_sid, order_list.sid, trails.price, order_list.order_status_sid, rating.rate_date, trails.trail_describ, trails.trail_name, trails.trail_short_describ, trails.sid FROM rating JOIN batch ON rating.batch_sid = batch.sid JOIN trails ON batch.trail_sid = trails.sid JOIN order_list ON order_list.member_sid = rating.member_sid && order_list.order_status_sid = 2 WHERE rating.member_sid =? GROUP BY rating.batch_sid ORDER BY rating.batch_sid `
+  // const sqlXX = `SELECT batch.batch_end, batch.batch_start, rating.batch_sid, rating.comment, rating.reply, rating.score, rating.trails_sid, rating.member_sid, trails.geo_location_sid, trails.geo_location_town_sid, order_list.sid, trails.price, order_list.order_status_sid, rating.rate_date, trails.trail_describ, order_list.total, trails.trail_name, trails.trail_short_describ, trails.sid FROM rating JOIN trails ON rating.trails_sid = trails.sid JOIN order_list ON order_list.member_sid = rating.member_sid AND order_list.order_status_sid = 2 JOIN batch ON batch.sid = rating.batch_sid WHERE rating.member_sid =? `
   // const sqlTrailName = `SELECT trails.trail_name,`
   const [rows] = await db.query(sql2, [req.params.mid])
   const convertedRows = rows.map((v, i) => {
