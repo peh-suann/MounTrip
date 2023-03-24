@@ -3147,9 +3147,9 @@ lru-cache@^6.0.0:
     yallist "^4.0.0"
 
 lru-cache@^7.14.1:
-  version "7.18.1"
-  resolved "https://registry.npmjs.org/lru-cache/-/lru-cache-7.18.1.tgz"
-  integrity sha512-8/HcIENyQnfUTCDizRu9rrDyG6XG/21M4X7/YEGZeD76ZJilFPAUVb/2zysFf7VVO1LEjCDFyHp8pMMvozIrvg==
+  version "7.18.3"
+  resolved "https://registry.npmjs.org/lru-cache/-/lru-cache-7.18.3.tgz"
+  integrity sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==
 
 media-typer@0.3.0:
   version "0.3.0"

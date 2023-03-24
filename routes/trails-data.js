@@ -11,7 +11,7 @@ const moment = require('moment-timezone')
 const getListData = async (req, res) => {
   let redirect = ''
   // const perPage = 1
-  const perPage = 2
+  const perPage = 1
   let page = +req.query.page || 1
 
   let queryObj = {}
@@ -47,6 +47,7 @@ const getListData = async (req, res) => {
     batch.sid,batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min, 
     batch.batch_max, batch.batch_sold, batch.batch_switch, batch.season_coupon
   
+	,COUNT(*) AS num_prods
     FROM trails 
   
     JOIN difficulty_list
@@ -55,12 +56,11 @@ const getListData = async (req, res) => {
     JOIN batch 
     ON trails.sid=batch.trail_sid
 
-    ORDER BY trails.sid 
+    GROUP BY trails.sid 
     LIMIT ${(page - 1) * perPage}, ${perPage}
     `
 
-
-  //   // return res.send(sql); // SQL 除錯方式之一
+    //   // return res.send(sql); // SQL 除錯方式之一
     ;[rows] = await db.query(sql)
   }
 
@@ -81,24 +81,24 @@ const getListData = async (req, res) => {
   }
 }
 
-// getRatingData GROUP BY 
+// getRatingData GROUP BY
 
 // const sql = `
-// SELECT trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time, 
-//     trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid, 
-//     trails.coupon_status, trails.price, trails.trails_display, 
+// SELECT trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time,
+//     trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid,
+//     trails.coupon_status, trails.price, trails.trails_display,
 //     trails.trail_length, trails.trail_height, trails.trail_gpx,
 
-//     batch.sid,batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min, 
+//     batch.sid,batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min,
 //     batch.batch_max, batch.batch_sold, batch.batch_switch, batch.season_coupon,
 
-// rating.sid, rating.person, rating.member_sid, rating.trails_sid, rating.score, 
+// rating.sid, rating.person, rating.member_sid, rating.trails_sid, rating.score,
 // rating.rate_date, rating.comment, rating.reply,
 
 // COUNT(*) AS num_prods
-// FROM trails 
+// FROM trails
 
-// JOIN batch 
+// JOIN batch
 // ON trails.sid=batch.trail_sid
 
 // LEFT JOIN rating
@@ -106,6 +106,8 @@ const getListData = async (req, res) => {
 
 // GROUP BY trails.sid
 // `
+
+//----------------------------------------------------------------------------------------------------------------------------
 
 const getRatingData = async (req, res) => {
   let rows = []
@@ -148,7 +150,7 @@ const getRatingData = async (req, res) => {
 }
 
 // async function changePrice() {
-//   let price 
+//   let price
 //   // if(price === 500){
 //   function getRandomInt(max = 300) {
 //     return Math.floor(Math.random() * Math.floor(max - 50) + 500)
@@ -163,7 +165,6 @@ const getRatingData = async (req, res) => {
 //   return [result]
 // }
 
-
 router.get('/rating', async (req, res) => {
   const output = await getRatingData(req, res)
   res.json(output)
@@ -175,6 +176,53 @@ router.get('/rating', async (req, res) => {
 //   res.json(output)
 //   // console.log(output)
 // })
+
+//----------------------------------------------------------------------------------------------------------------------------
+const getBatchData = async (req, res) => {
+  let rows = []
+
+  const sql = `
+  SELECT 
+  
+  trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time, 
+  trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid, 
+  trails.coupon_status, trails.price, trails.trails_display, 
+  trails.trail_length, trails.trail_height, trails.trail_gpx , 
+
+
+  batch.sid,batch.trail_sid, batch.batch_start, batch.batch_end, batch.batch_min, 
+  batch.batch_max, batch.batch_sold, batch.batch_switch, batch.season_coupon
+  
+
+  FROM trails 
+  
+  JOIN batch 
+  ON trails.sid=batch.trail_sid
+
+  ORDER BY trails.sid
+
+  `
+
+  ;[rows] = await db.query(sql)
+
+  const fm = 'YYYY-MM-DD'
+  rows.forEach((v) => {
+    v.batch_start = moment(v.batch_start).format(fm)
+    v.batch_end = moment(v.batch_end).format(fm)
+  })
+
+  // return res.send(sql); //SQL 除錯方式
+
+  return {
+    rows,
+  }
+}
+
+router.get('/batch', async (req, res) => {
+  const output = await getBatchData(req, res)
+  res.json(output)
+  // console.log(output)
+})
 
 router.get('/', async (req, res) => {
   const output = await getListData(req, res)
