@@ -87,7 +87,7 @@ app.get('/try-db', async (req, res) => {
   res.json([rows])
 })
 
-app.use('/', require('./routes/Ian.js'))
+
 app.use('/member', require('./routes/member-data'))
 
 // app.use('/trails',require('./routes/member-data'))
@@ -289,6 +289,8 @@ app.get('/insert-random-numbers', async (req, res) => {
     res.status(500).send('An error occurred while inserting random numbers.')
   }
 })
+
+app.use('/', require('./routes/Ian.js'))
 
 //404頁面
 app.use((req, res) => {
