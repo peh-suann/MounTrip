@@ -272,6 +272,28 @@ app.use('/rating_data', require('./routes/rating_datas'))
 // app.use('/insert_batch', require('./routes/yichun_insert_batch'))
 // app.use('/insert_order', require('./routes/yichun_insert_order'))
 
+app.get('/insert-random-numbers', async (req, res) => {
+  try {
+    // generate an array of 400 random numbers
+    const randomNumbers = []
+    for (let i = 0; i < 400; i++) {
+      randomNumbers.push(Math.floor(Math.random() * 400) + 1)
+    }
+
+    // insert the random numbers into a row
+    const query = `UPDATE order_detail SET batch_sid = FLOOR(1 + RAND() * 400) WHERE 1`
+    const result = await db.execute(query)
+
+    console.log(result)
+    // close the database connection
+
+    // send a response to the client
+    res.send('Random numbers inserted successfully!')
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('An error occurred while inserting random numbers.')
+  }
+})
 app.use('/', require('./routes/Ian.js'))
 
 //404頁面

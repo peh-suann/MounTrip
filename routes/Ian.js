@@ -74,18 +74,6 @@ const getSeasonComment = async (req, res) => {
   return { rows }
 }
 
-
-
-// const getCouponData = async (req, res, sid) => {
-//   let Row = []
-//   const sql =
-//     'SELECT coupon.sid AS coupon_sid, coupon_code, coupon_name, start_date_coup, end_date_coup, promo_name, coupon_status,min_purchase FROM coupon JOIN member_coupon ON member_coupon.coupon_sid = coupon.sid WHERE member_coupon.member_sid =1 AND coupon.coupon_status=1 ORDER BY coupon.sid ASC'
-//   const Rows = await db.query(sql, sid)
-//   const rows = Rows[0]
-//   return { rows }
-// }
-
-
 const getCouponData = async (req, res, sid) => {
   const sql =
     'SELECT coupon.sid AS coupon_sid, coupon_code, coupon_name, start_date_coup, end_date_coup, promo_name, coupon_status,min_purchase FROM coupon JOIN member_coupon ON member_coupon.coupon_sid = coupon.sid WHERE member_coupon.member_sid =? ORDER BY coupon.sid ASC'
@@ -157,16 +145,35 @@ router.post('/history', async (req, res) => {
   console.log('req.body:', req.body)
   const sql =
     "INSERT INTO `order_list`( `order_date`, `member_sid`,`order_status_sid` ,`total`,`memo`,`fake_delete`) VALUES (now(),?,2,?,null,'1')"
-  const rows = await db.query(sql, [
-    req.body.member.user.sid,
-    req.body.finallyTotal,
-  ])
+  const rows = await db.query(sql, [req.body.userSid, req.body.payTotal])
+  // console.log(rows)
+  // res.json(rows)
 
   const mysql =
-    'SELECT order_list.sid from order_list ORDER BY sid DESC LIMIT 0,1'
-
-  const Rows = await db.query(sql)
+    'SELECT order_list.sid FROM order_list ORDER BY `order_list`.`sid` DESC LIMIT 0,1'
+  const [orderList_lastSid] = await db.query(mysql)
+  console.log(orderList_lastSid)
+  res.json(orderList_lastSid)
 })
-// SELECT order_list.sid from order_list ORDER BY sid DESC LIMIT 0,1
-module.exports = router
 
+router.post('/history2', async (req, res) => {
+  console.log('req.body:', req.body)
+  const sql =
+    'INSERT INTO `order_detail`(`order_sid`, `batch_sid`,`amount`,`create_date`,`fake_delete`) VALUES (?,?,?,now(),0)'
+  const rows = await db.query(sql, [
+    req.body.lastSid,
+    req.body.cartSid,
+    req.body.cartQuantity,
+  ])
+  // console.log(rows)
+  res.json(rows)
+})
+router.post('/orderDate', async (req, res) => {
+  const sql =
+    'SELECT order_date FROM order_list ORDER BY `order_list`.`sid` DESC LIMIT 0,1'
+  const rows = await db.query(sql)
+  console.log(rows)
+  // res.json(rows)
+})
+
+module.exports = router
