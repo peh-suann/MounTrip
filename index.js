@@ -254,7 +254,7 @@ app.use('/select_batch', require('./routes/kexin_select_batch'))
 // app.use('/test', require('./routes/test'))
 
 // --yichun fetch products data
-// app.use('/search', require('./routes/yichun_search_products'))
+app.use('/search', require('./routes/yichun_search_products'))
 app.use('/products', require('./routes/yichun_all_products'))
 app.use('/products_popular', require('./routes/yichun_popular_products'))
 app.use('/products_sunrise', require('./routes/yichun_popular_sunrise'))
