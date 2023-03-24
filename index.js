@@ -17,6 +17,7 @@ const cors = require('cors')
 const multer = require('multer')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const { sendMagicLinkEmail } =require("./mailer")
 const app = express()
 
 //DB連接
@@ -51,6 +52,8 @@ app.use(
   })
 )
 
+app.use(cors(corsOptions))
+
 //傳入資料解析為json格式
 app.use(express.json())
 //解析透過url傳輸過來的資料
@@ -84,7 +87,7 @@ app.get('/try-db', async (req, res) => {
   res.json([rows])
 })
 
-// app.use('/', require('./routes/Ian.js'))
+
 app.use('/member', require('./routes/member-data'))
 
 // app.use('/trails',require('./routes/member-data'))
@@ -136,9 +139,8 @@ app.post('/login', async (req, res) => {
   let passwordCorrect = false // 預設密碼是錯的
   try {
     passwordCorrect = await bcrypt.compare(req.body.password, rows[0].password)
-  } catch (ex) {
-    console.log('出現錯誤')
-  }
+  } catch (ex) {}
+
   if (!passwordCorrect) {
     // 密碼是錯的
     output.code = 402
@@ -214,6 +216,40 @@ app.post('/signin', async (req, res) => {
   res.json(output)
 })
 
+// kexin 忘記密碼
+
+
+// const users =[{
+//   id:1,
+//   name:'kexin',
+//   email: "lu773414@gmail.com"
+// }]
+
+// app.post("/resetPassword", async (req,res) => {
+//   console.log(req.body.email)
+//   const user=users.find(u => u.email === req.body.email)
+
+//   console.log('user',user)
+//   if (user != null) {
+//     try {
+//       const token = jwt.sign({userId : user.id}, process.env.JWT_SECRET,{
+//         expiresIn: "1h",
+//       })
+//       console.log(token)
+//       await sendMagicLinkEmail({email:user.email,token})
+//     } catch (e) {
+//       return res.send("Error RESET PASSWORD")
+//     }
+
+//     res.send("success")
+//   }
+// })
+
+// kexin 首頁路由
+app.use('/select_products', require('./routes/kexin_select_county_products'))
+app.use('/select_comment', require('./routes/kexin_select_comment'))
+app.use('/select_batch', require('./routes/kexin_select_batch'))
+
 //測試新的路由
 // app.use('/test', require('./routes/test'))
 
@@ -235,6 +271,8 @@ app.use('/answer', require('./routes/yichun_answer'))
 app.use('/rating_data', require('./routes/rating_datas'))
 // app.use('/insert_batch', require('./routes/yichun_insert_batch'))
 // app.use('/insert_order', require('./routes/yichun_insert_order'))
+
+app.use('/', require('./routes/Ian.js'))
 
 //404頁面
 app.use((req, res) => {

@@ -11,11 +11,6 @@ const pool = mysql.createPool({
   user: 'mountain',
   password: 'mountaindude55',
   database: 'mountain',
-
-  // host: '192.168.21.84',
-  // user: 'mountain',
-  // password: 'mountaindude55',
-  // database: 'mountain',
   // host: 'localhost',
   // user: 'root',
   // password: '',
