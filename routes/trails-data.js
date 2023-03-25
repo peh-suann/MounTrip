@@ -115,19 +115,17 @@ const getRatingData = async (req, res) => {
   const sql = `
   SELECT 
   rating.sid, rating.person, rating.member_sid, rating.trails_sid, rating.score, 
-  rating.rate_date, rating.comment, rating.reply,
+  rating.rate_date, rating.comment, rating.reply,rating.batch_sid,
   
-  member.firstname, member.lastname,
+  member.firstname, member.lastname
 
-  batch.sid
-  
   FROM rating
 
-  JOIN member
+  LEFT JOIN member
   on member.sid=rating.member_sid
 
-  JOIN batch
-  on batch.sid=rating.batch_sid
+
+  ORDER BY rating.sid ASC
 
     `
 
