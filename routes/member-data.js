@@ -264,17 +264,13 @@ async function setNewLevel(level, sid) {
 }
 router.post('/me/member-level/update', authenticateToken, async (req, res) => {
   const sid = req.body['sid']
-  const trails_sid = req.body['trails_sid']
-  let updateLevel = 1
-  // const sql = `UPDATE member SET level=`
+  const futureLevel = req.body['futurelevel']
 
-  switch (getCurrentLevel(sid)) {
+  switch (futureLevel) {
     default:
       return setNewLevel(1, sid)
-    case 1:
-      return setNewLevel(2, sid)
     case 2:
-      return setNewLevel(3, sid)
+      return setNewLevel(2, sid)
     case 3:
       return setNewLevel(3, sid)
   }
