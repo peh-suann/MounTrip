@@ -344,7 +344,7 @@ app.use((req, res) => {
         `)
 })
 
-const port = process.env.PORT || 3001
+const port = process.env.PORT || 3002
 app.listen(port, () => {
   console.log(`伺服器啟動:${port}`)
 })
