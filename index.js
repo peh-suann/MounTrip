@@ -17,7 +17,7 @@ const cors = require('cors')
 const multer = require('multer')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const { sendMagicLinkEmail } =require("./mailer")
+const { sendMagicLinkEmail } = require('./mailer')
 const app = express()
 
 //DB連接
@@ -86,7 +86,6 @@ app.get('/try-db', async (req, res) => {
   const [rows] = await db.query('SELECT * FROM trails LIMIT 5')
   res.json([rows])
 })
-
 
 app.use('/member', require('./routes/member-data'))
 
@@ -218,7 +217,6 @@ app.post('/signin', async (req, res) => {
 
 // kexin 忘記密碼
 
-
 // const users =[{
 //   id:1,
 //   name:'kexin',
@@ -267,6 +265,10 @@ app.use('/test', require('./routes/yichun_test'))
 app.use('/test_play', require('./routes/yichun_test_play'))
 app.use('/insert_play', require('./routes/yichun_test_insert_play'))
 app.use('/insert_coupon', require('./routes/yichun_test_insert_coupon'))
+app.use(
+  '/member_insert_coupon',
+  require('./routes/yichun_member_insert_coupon')
+)
 app.use('/answer', require('./routes/yichun_answer'))
 app.use('/rating_data', require('./routes/rating_datas'))
 // app.use('/insert_batch', require('./routes/yichun_insert_batch'))
