@@ -65,6 +65,6 @@ Thumbs.db
 *.png
 
 dev.env
-# production.env
+production.env
 # production.env
 *.env
