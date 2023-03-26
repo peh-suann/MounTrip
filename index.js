@@ -18,7 +18,6 @@ const multer = require('multer')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { sendMagicLinkEmail } = require('./mailer')
-const { sendMagicLinkEmail } = require("./mailer")
 const app = express()
 
 //DB連接
