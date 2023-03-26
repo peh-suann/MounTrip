@@ -284,6 +284,7 @@ app.post('/vertify', (req,res) => {
 app.use('/select_products', require('./routes/kexin_select_county_products'))
 app.use('/select_comment', require('./routes/kexin_select_comment'))
 app.use('/select_batch', require('./routes/kexin_select_batch'))
+app.use('/select_member', require('./routes/kexin_select_member'))
 
 //測試新的路由
 // app.use('/test', require('./routes/test'))
