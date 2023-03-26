@@ -40,7 +40,7 @@ const getListData = async (req, res) => {
     trails.sid, trails.trail_name, trails.trail_img, trails.trail_describ,trails.trail_time, 
     trails.geo_location_sid, trails.geo_location_town_sid, trails.difficulty_list_sid, 
     trails.coupon_status, trails.price, trails.trails_display, 
-    trails.trail_length, trails.trail_height, trails.trail_gpx , 
+    trails.trail_length, trails.trail_height, trails.trail_gpx , trails.lon , trails.lat,
   
     difficulty_list.difficulty_describ, difficulty_list.difficulty_short,
   
