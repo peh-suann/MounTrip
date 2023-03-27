@@ -468,7 +468,8 @@ router.post(
   async (req, res) => {
     if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
     console.log('req.body:', req.body)
-    const sql = `UPDATE member SET firstname=?,lastname=?, gender=?, birthday=?, personal_id=?, mobile=?, account=?, email=?, zip=?, city=?, address=? WHERE sid =? `
+    //暫時把account刪掉
+    const sql = `UPDATE member SET firstname=?,lastname=?, gender=?, birthday=?, personal_id=?, mobile=?, email=?, zip=?, city=?, address=? WHERE sid =? `
     const [rows] = await db.query(sql, [
       req.body.firstname,
       req.body.lastname,
@@ -476,7 +477,7 @@ router.post(
       req.body.birthday,
       req.body.personalId,
       req.body.mobile,
-      req.body.account,
+      // req.body.account,
       req.body.email,
       req.body.zip,
       req.body.city,

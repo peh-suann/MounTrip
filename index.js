@@ -184,8 +184,8 @@ app.post('/signin', async (req, res) => {
   const hash = bcrypt.hashSync(req.body.password, 10)
   console.log(hash)
   const [rows] = await db.query(sql, [req.body.account, hash])
-  // console.log(rows)
-  // console.log(rows.insertId)
+  console.log('rows',rows)
+  console.log(rows.insertId)
 
   if (!rows.insertId) {
     // 帳號是錯的
@@ -215,38 +215,75 @@ app.post('/signin', async (req, res) => {
   res.json(output)
 })
 
-// kexin 忘記密碼
+// kexin 忘記密碼寄信
+const users =[{
+  id:1,
+  name:'kexin',
+  email: "lu773414@gmail.com"
+}]
 
-// const users =[{
-//   id:1,
-//   name:'kexin',
-//   email: "lu773414@gmail.com"
-// }]
+app.post("/resetPassword", async (req,res) => {
+  console.log(req.body.email)
+  const user=users.find(u => u.email === req.body.email)
 
-// app.post("/resetPassword", async (req,res) => {
-//   console.log(req.body.email)
-//   const user=users.find(u => u.email === req.body.email)
+  console.log('user',user)
+  if (user != null) {
+    try {
+      const token = jwt.sign({userId : user.id}, process.env.JWT_SECRET,{
+        expiresIn: "1h",
+      })
+      console.log(token)
+      await sendMagicLinkEmail({email:user.email,token})
+    } catch (e) {
+      return res.send("Error RESET PASSWORD")
+    }
 
-//   console.log('user',user)
-//   if (user != null) {
-//     try {
-//       const token = jwt.sign({userId : user.id}, process.env.JWT_SECRET,{
-//         expiresIn: "1h",
-//       })
-//       console.log(token)
-//       await sendMagicLinkEmail({email:user.email,token})
-//     } catch (e) {
-//       return res.send("Error RESET PASSWORD")
-//     }
+    res.send("success")
+  }
+})
 
-//     res.send("success")
-//   }
-// })
+// kexin 忘記密碼路由驗證
+app.post('/vertify', (req,res) => {
+
+  const output = {
+    success: false,
+    error: '未驗證成功 !!!',
+    code: 0,
+    postData: req.body,
+    token: '',
+  }
+
+  const token = req.body
+  // console.log(token)
+  if (token == null) return res.sendStatus(401)
+
+
+  let tokenCorrect = false // 預設密碼是錯的
+  try {
+    console.log(jwt.verify(token, process.env.JWT_SECRET))
+    const decodeToken = jwt.verify(token, process.env.JWT_SECRET)
+    console.log(decodeToken)
+    const user = users.find(u => u.id === decodeToken.userId)
+    if (user) {
+      tokenCorrect = true
+    }
+    res.send(`${user.name}`)
+    // res.redirect='http:localhost:3000/password'
+    output.success = true
+    output.code = 200
+  } catch (e) {
+    res.sendStatus(401)
+
+  }
+  
+})
+
 
 // kexin 首頁路由
 app.use('/select_products', require('./routes/kexin_select_county_products'))
 app.use('/select_comment', require('./routes/kexin_select_comment'))
 app.use('/select_batch', require('./routes/kexin_select_batch'))
+app.use('/select_member', require('./routes/kexin_select_member'))
 
 //測試新的路由
 // app.use('/test', require('./routes/test'))
@@ -306,7 +343,7 @@ app.use((req, res) => {
         `)
 })
 
-const port = process.env.PORT || 3001
+const port = process.env.PORT || 3002
 app.listen(port, () => {
   console.log(`伺服器啟動:${port}`)
 })

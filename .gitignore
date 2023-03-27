@@ -7,7 +7,6 @@ production.env
 
 package-lock.json
 
-public/fontawesome
 
 
 .vscode
@@ -65,6 +64,6 @@ Thumbs.db
 *.png
 
 dev.env
-# production.env
+production.env
 # production.env
 *.env
