@@ -76,7 +76,7 @@ function authenticateToken(req, res, next) {
 function authenticateToken2(req, res, next) {
   const authHeader = req.body.Authorization
   const testpayload = req.body.Authorization
-  console.log('payload', testpayload)
+  // console.log('payload', testpayload)
   const token = authHeader && authHeader.split(' ')[1]
   //check if thet token under 'BEARER' is valid
   if (!token) return res.sendStatus(402)
@@ -247,7 +247,7 @@ router.get('/me/order/product-detail', authenticateToken, async (req, res) => {
       id: ID,
     }
   }
-  console.log(output)
+  // console.log(output)
   res.json(output)
 })
 //會員等級升級
@@ -303,11 +303,11 @@ router.get('/me/comment/:mid', authenticateToken, async (req, res) => {
   let output = { data: convertedRows, msg: '' }
   if (convertedRows && convertedRows.length) {
     output = { data: convertedRows, msg: 'success' }
-    console.log(output)
+    // console.log(output)
     res.json(output)
   } else {
     output = { data: convertedRows, msg: 'failed' }
-    console.log(output)
+    // console.log(output)
     res.json(output)
   }
 })
@@ -386,7 +386,7 @@ const getUserCoupon = async (req, res, sid) => {
     }
   })
 
-  console.log(convertedRows)
+  // console.log(convertedRows)
   return convertedRows
 }
 
@@ -402,13 +402,13 @@ const getUserFavorite = async (req, res, sid) => {
   // const sql2 =
   // 'SELECT favorite.member_sid, favorite.trails_sid, favorite.status, trails.trail_name, trails.trail_img, trails.trail_short_describ, trails.geo_location_sid, trails.geo_location_town_sid, trails.price,  ( SELECT AVG(rating.score) FROM rating WHERE rating.batch_sid = order_detail.batch_sid ) as avg_score  FROM favorite JOIN trails ON favorite.trails_sid = trails.sid JOIN batch ON batch.trail_sid = trails.sid JOIN order_detail ON order_detail.batch_sid = batch.sid WHERE member_sid =?'
   const [rows] = await db.query(sql, sid)
-  console.log('userfav', rows)
+  // console.log('userfav', rows)
   return rows
 }
 const deleteUserFavorite = async (req, res, member_sid, trails_sid) => {
   const sql = 'DELETE FROM favorite WHERE member_sid =? && trails_sid=?'
   const [rows] = await db.query(sql, [member_sid, trails_sid])
-  console.log('delete', rows)
+  // console.log('delete', rows)
   return rows
 }
 const addUserFavorite = async (req, res, member_sid, trails_sid) => {
@@ -417,27 +417,30 @@ const addUserFavorite = async (req, res, member_sid, trails_sid) => {
   const [rows] = await db.query(sql, [member_sid, trails_sid])
   console.log('req.payload', req.body)
 }
-router.get('/me/favorite', authenticateToken, async (req, res) => {
-  const sid = req.headers['sid']
-  const output = await getUserFavorite(req, res, sid)
-  // console.log('output', output)
-  res.json(output)
-})
 
 router.delete('/me/favorite/delete', authenticateToken, async (req, res) => {
-  const sid = req.headers['sid']
-  const trails_sid = req.headers['trails_sid']
+  const sid = req.headers.sid
+  const trails_sid = req.headers.trails_sid
   const output = await deleteUserFavorite(req, res, sid, trails_sid)
-  // console.log('output', output)
+  console.log('output', output)
   // console.log('trails_sid', trails_sid)
+  console.log('req.payload', req.body)
+
   res.json(output)
 })
-router.post('/me/favorite/add', authenticateToken2, async (req, res) => {
+router.post('/me/favorite/add', authenticateToken, async (req, res) => {
   // const sid = req.headers['sid']
   // const trails_sid = req.headers['trails_sid']
   const sid = req.body['sid']
   const trails_sid = req.body['trails_sid']
   const output = await addUserFavorite(req, res, sid, trails_sid)
+  res.json(output)
+})
+
+router.get('/me/favorite', authenticateToken, async (req, res) => {
+  const sid = req.headers['sid']
+  const output = await getUserFavorite(req, res, sid)
+  // console.log('output', output)
   res.json(output)
 })
 //抓所有會員資料
@@ -467,7 +470,7 @@ router.post(
   upload.none(), //multer套件，表示不需要處理檔案files
   async (req, res) => {
     if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
-    console.log('req.body:', req.body)
+    // console.log('req.body:', req.body)
     //暫時把account刪掉
     const sql = `UPDATE member SET firstname=?,lastname=?, gender=?, birthday=?, personal_id=?, mobile=?, email=?, zip=?, city=?, address=? WHERE sid =? `
     const [rows] = await db.query(sql, [
