@@ -111,23 +111,22 @@ const getListData = async (req, res) => {
 
 const getRatingData = async (req, res) => {
   let rows = []
-  // 用別名的方式修改
+
   const sql = `
-  SELECT 
-  rating.sid, rating.person, rating.member_sid, rating.trails_sid, rating.score, 
-  rating.rate_date, rating.comment, rating.reply,
+  SELECT trails.trail_name, trails.geo_location_sid, trails.geo_location_town_sid, trails.price, trails.sid , trails.trail_img, trails.trail_describ, trails.trail_time, trails.trail_length, trails.trail_height,trails.lon, trails.lat,
+
+  batch.sid AS batch_sid, batch.batch_start, batch.batch_end, 
+  ( SELECT AVG(rating.score) FROM rating WHERE rating.batch_sid = order_detail.batch_sid ) as avg_score
   
-  member.firstname, member.lastname,
-
-  batch.sid
+  ,COUNT(*) AS num_prods
   
-  FROM rating
-
-  JOIN member
-  on member.sid=rating.member_sid
-
-  JOIN batch
-  on batch.sid=rating.batch_sid
+  FROM order_detail 
+  
+  JOIN batch ON order_detail.batch_sid = batch.sid 
+  
+  JOIN trails ON trails.sid = batch.trail_sid 
+  
+  GROUP BY trails.sid 
 
     `
 
