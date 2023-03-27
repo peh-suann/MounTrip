@@ -185,8 +185,8 @@ app.post('/signin', async (req, res) => {
   const hash = bcrypt.hashSync(req.body.password, 10)
   console.log(hash)
   const [rows] = await db.query(sql, [req.body.account, hash])
-  // console.log(rows)
-  // console.log(rows.insertId)
+  console.log('rows',rows)
+  console.log(rows.insertId)
 
   if (!rows.insertId) {
     // 帳號是錯的
@@ -249,6 +249,7 @@ app.post('/signin', async (req, res) => {
 app.use('/select_products', require('./routes/kexin_select_county_products'))
 app.use('/select_comment', require('./routes/kexin_select_comment'))
 app.use('/select_batch', require('./routes/kexin_select_batch'))
+app.use('/select_member', require('./routes/kexin_select_member'))
 
 //測試新的路由
 // app.use('/test', require('./routes/test'))
