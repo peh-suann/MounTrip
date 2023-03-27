@@ -7,6 +7,10 @@ const pool = mysql.createPool({
   // password: '',
   // database: 'mountrip',
 
+  // host: '192.168.21.84',
+  // user: 'mountain',
+  // password: 'mountaindude55',
+
   host: '192.168.21.84',
   user: 'mountain',
   password: 'mountaindude55',
@@ -14,7 +18,6 @@ const pool = mysql.createPool({
   // host: 'localhost',
   // user: 'root',
   // password: '',
-  // database: 'mountain',
   // database: 'mountrip_dev',
 
   waitForConnections: true,
