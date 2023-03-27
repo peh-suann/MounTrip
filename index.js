@@ -184,8 +184,8 @@ app.post('/signin', async (req, res) => {
   const hash = bcrypt.hashSync(req.body.password, 10)
   console.log(hash)
   const [rows] = await db.query(sql, [req.body.account, hash])
-  // console.log(rows)
-  // console.log(rows.insertId)
+  console.log('rows',rows)
+  console.log(rows.insertId)
 
   if (!rows.insertId) {
     // 帳號是錯的

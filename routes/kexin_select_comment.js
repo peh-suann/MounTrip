@@ -10,7 +10,7 @@ const router = express.Router()
 const getListData = async (req, res) => {
   let sid = req.query.sid || 1
   console.log(sid)
-  const sql = `SELECT rating.trails_sid, rating.sid, rating.score, rating.comment, rating.rate_date, rating.rating_img, member.firstname, member.lastname, member.img, member.level, member.sid AS member_sid FROM rating JOIN member ON rating.member_sid=member.sid JOIN batch ON rating.batch_sid=batch.sid WHERE batch.trail_sid=${sid}`
+  const sql = `SELECT rating.trails_sid AS trails_sid, rating.sid, rating.score, rating.comment, rating.rate_date, rating.rating_img, member.firstname, member.lastname, member.img, member.level, member.sid AS member_sid FROM rating JOIN member ON rating.member_sid=member.sid JOIN batch ON rating.batch_sid=batch.sid WHERE batch.trail_sid=${sid}`
 
   console.log(sql)
   const rows = await db.query(sql)
