@@ -3,25 +3,15 @@ const db = require('./../modules/db_connection')
 
 const router = express.Router()
 
-// router.use((req, res, next) => {
-//   next()
-// })
-
 const getListData = async (req, res) => {
-  let sid = req.query.sid || 1
-  console.log(sid)
-  const sql = `SELECT img FROM member WHERE sid=${sid}`
-
-  console.log(sql)
+  const { accountId } = req.query
+  const sql = `INSERT INTO member_coupon(coupon_sid, member_sid, status) SELECT 20, member.sid, 0 FROM member WHERE member.account = '${accountId}';`
   const rows = await db.query(sql)
-  //   console.log('rows', rows)
   return rows[0]
 }
 
 router.get('/', async (req, res) => {
   const output = await getListData(req, res)
   res.json(output)
-  // res.send('<h2>admin2</h2>')
 })
-
 module.exports = router

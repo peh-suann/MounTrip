@@ -65,7 +65,7 @@ const getSeasonData = async (req, res) => {
 const getSeasonComment = async (req, res) => {
   let Rows = []
   Rows = await db.query(
-    'SELECT member.sid,member.firstname,member.lastname,rating_img,rating.comment,rating.rate_date FROM rating INNER JOIN member on rating.member_sid=member.sid WHERE rating.score=5 LIMIT 7'
+    `SELECT member.sid,member.firstname,member.lastname,rating_img,rating.comment,rating.rate_date FROM rating INNER JOIN member on rating.member_sid=member.sid WHERE rating.rating_img LIKE '%jpg%' LIMIT 7`
   )
 
   const rows = Rows[0]
@@ -76,7 +76,7 @@ const getSeasonComment = async (req, res) => {
 
 const getCouponData = async (req, res, sid) => {
   const sql =
-    'SELECT coupon.sid AS coupon_sid, coupon_code, coupon_name, start_date_coup, end_date_coup, promo_name, coupon_status,min_purchase FROM coupon JOIN member_coupon ON member_coupon.coupon_sid = coupon.sid WHERE member_coupon.member_sid =? ORDER BY coupon.sid ASC'
+    'SELECT coupon.sid AS coupon_sid, coupon_code, coupon_name, start_date_coup, end_date_coup, promo_name, coupon_status,min_purchase,coupon_rate FROM coupon JOIN member_coupon ON member_coupon.coupon_sid = coupon.sid WHERE member_coupon.member_sid =? ORDER BY coupon.sid ASC'
   const rows = await db.query(sql, sid)
   return rows[0]
 }
@@ -145,7 +145,7 @@ router.post('/history', async (req, res) => {
   console.log('req.body:', req.body)
   const sql =
     "INSERT INTO `order_list`( `order_date`, `member_sid`,`order_status_sid` ,`total`,`memo`,`fake_delete`) VALUES (now(),?,2,?,null,'1')"
-  const rows = await db.query(sql, [req.body.userSid, req.body.payTotal])
+  const rows = await db.query(sql, [req.body.userSid, req.body.newPayTotal])
   // console.log(rows)
   // res.json(rows)
 
@@ -171,9 +171,10 @@ router.post('/history2', async (req, res) => {
 router.post('/orderDate', async (req, res) => {
   const sql =
     'SELECT order_date FROM order_list ORDER BY `order_list`.`sid` DESC LIMIT 0,1'
-  const rows = await db.query(sql)
-  console.log(rows)
-  // res.json(rows)
+  const [rows] = await db.query(sql)
+  // console.log(rows[0].order_date)
+  const date = rows[0].order_date
+  res.json(date)
 })
 
 module.exports = router

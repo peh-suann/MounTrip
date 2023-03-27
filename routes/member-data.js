@@ -264,17 +264,13 @@ async function setNewLevel(level, sid) {
 }
 router.post('/me/member-level/update', authenticateToken, async (req, res) => {
   const sid = req.body['sid']
-  const trails_sid = req.body['trails_sid']
-  let updateLevel = 1
-  // const sql = `UPDATE member SET level=`
+  const futureLevel = req.body['futurelevel']
 
-  switch (getCurrentLevel(sid)) {
+  switch (futureLevel) {
     default:
       return setNewLevel(1, sid)
-    case 1:
-      return setNewLevel(2, sid)
     case 2:
-      return setNewLevel(3, sid)
+      return setNewLevel(2, sid)
     case 3:
       return setNewLevel(3, sid)
   }
@@ -472,7 +468,8 @@ router.post(
   async (req, res) => {
     if (!req.params.mid === req.user.accountId) return res.sendStatus(403)
     console.log('req.body:', req.body)
-    const sql = `UPDATE member SET firstname=?,lastname=?, gender=?, birthday=?, personal_id=?, mobile=?, account=?, email=?, zip=?, city=?, address=? WHERE sid =? `
+    //暫時把account刪掉
+    const sql = `UPDATE member SET firstname=?,lastname=?, gender=?, birthday=?, personal_id=?, mobile=?, email=?, zip=?, city=?, address=? WHERE sid =? `
     const [rows] = await db.query(sql, [
       req.body.firstname,
       req.body.lastname,
@@ -480,7 +477,7 @@ router.post(
       req.body.birthday,
       req.body.personalId,
       req.body.mobile,
-      req.body.account,
+      // req.body.account,
       req.body.email,
       req.body.zip,
       req.body.city,

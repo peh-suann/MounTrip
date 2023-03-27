@@ -17,7 +17,7 @@ const cors = require('cors')
 const multer = require('multer')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const { sendMagicLinkEmail } =require("./mailer")
+const { sendMagicLinkEmail } = require('./mailer')
 const app = express()
 
 //DB連接
@@ -86,7 +86,6 @@ app.get('/try-db', async (req, res) => {
   const [rows] = await db.query('SELECT * FROM trails LIMIT 5')
   res.json([rows])
 })
-
 
 app.use('/member', require('./routes/member-data'))
 
@@ -216,34 +215,69 @@ app.post('/signin', async (req, res) => {
   res.json(output)
 })
 
-// kexin 忘記密碼
+// kexin 忘記密碼寄信
+const users =[{
+  id:1,
+  name:'kexin',
+  email: "lu773414@gmail.com"
+}]
+
+app.post("/resetPassword", async (req,res) => {
+  console.log(req.body.email)
+  const user=users.find(u => u.email === req.body.email)
+
+  console.log('user',user)
+  if (user != null) {
+    try {
+      const token = jwt.sign({userId : user.id}, process.env.JWT_SECRET,{
+        expiresIn: "1h",
+      })
+      console.log(token)
+      await sendMagicLinkEmail({email:user.email,token})
+    } catch (e) {
+      return res.send("Error RESET PASSWORD")
+    }
+
+    res.send("success")
+  }
+})
+
+// kexin 忘記密碼路由驗證
+app.post('/vertify', (req,res) => {
+
+  const output = {
+    success: false,
+    error: '未驗證成功 !!!',
+    code: 0,
+    postData: req.body,
+    token: '',
+  }
+
+  const token = req.body
+  // console.log(token)
+  if (token == null) return res.sendStatus(401)
 
 
-// const users =[{
-//   id:1,
-//   name:'kexin',
-//   email: "lu773414@gmail.com"
-// }]
+  let tokenCorrect = false // 預設密碼是錯的
+  try {
+    console.log(jwt.verify(token, process.env.JWT_SECRET))
+    const decodeToken = jwt.verify(token, process.env.JWT_SECRET)
+    console.log(decodeToken)
+    const user = users.find(u => u.id === decodeToken.userId)
+    if (user) {
+      tokenCorrect = true
+    }
+    res.send(`${user.name}`)
+    // res.redirect='http:localhost:3000/password'
+    output.success = true
+    output.code = 200
+  } catch (e) {
+    res.sendStatus(401)
 
-// app.post("/resetPassword", async (req,res) => {
-//   console.log(req.body.email)
-//   const user=users.find(u => u.email === req.body.email)
+  }
+  
+})
 
-//   console.log('user',user)
-//   if (user != null) {
-//     try {
-//       const token = jwt.sign({userId : user.id}, process.env.JWT_SECRET,{
-//         expiresIn: "1h",
-//       })
-//       console.log(token)
-//       await sendMagicLinkEmail({email:user.email,token})
-//     } catch (e) {
-//       return res.send("Error RESET PASSWORD")
-//     }
-
-//     res.send("success")
-//   }
-// })
 
 // kexin 首頁路由
 app.use('/select_products', require('./routes/kexin_select_county_products'))
@@ -268,6 +302,10 @@ app.use('/test', require('./routes/yichun_test'))
 app.use('/test_play', require('./routes/yichun_test_play'))
 app.use('/insert_play', require('./routes/yichun_test_insert_play'))
 app.use('/insert_coupon', require('./routes/yichun_test_insert_coupon'))
+app.use(
+  '/member_insert_coupon',
+  require('./routes/yichun_member_insert_coupon')
+)
 app.use('/answer', require('./routes/yichun_answer'))
 app.use('/rating_data', require('./routes/rating_datas'))
 // app.use('/insert_batch', require('./routes/yichun_insert_batch'))
@@ -305,7 +343,7 @@ app.use((req, res) => {
         `)
 })
 
-const port = process.env.PORT || 3001
+const port = process.env.PORT || 3002
 app.listen(port, () => {
   console.log(`伺服器啟動:${port}`)
 })
